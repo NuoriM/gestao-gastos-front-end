@@ -10,10 +10,18 @@ export default {
 		return {
 			dadosRegistro: <IRegistroRequest>{},
 			resolver: zodResolver(z.object({
-				nome: z.string({ required_error: 'O nome é obrigatório' }).min(3, { message: 'O nome deve ter pelo menos 3 caracteres' }),
-				sobrenome: z.string({ required_error: 'O sobrenome é obrigatório' }).min(3, { message: 'O sobrenome deve ter pelo menos 3 caracteres' }),
-				emailTelefone: z.string({ required_error: 'O email ou telefone é obrigatório' }).min(5, { message: 'O email ou telefone deve ter pelo menos 5 caracteres' }),
-				senha: z.string({ required_error: 'A senha é obrigatória' }).min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
+				nome: z.string({ required_error: 'O nome é obrigatório.' })
+					.min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' })
+					.nonempty({ message: 'O nome é obrigatório.' }),
+				sobrenome: z.string({ required_error: 'O sobrenome é obrigatório.' })
+					.min(3, { message: 'O sobrenome deve ter pelo menos 3 caracteres.' })
+					.nonempty({ message: 'O sobrenome é obrigatório.' }),
+				emailTelefone: z.string({ required_error: 'O email ou telefone é obrigatório.' })
+					.min(5, { message: 'O email ou telefone deve ter pelo menos 5 caracteres.' })
+					.nonempty({ message: 'O email ou telefone é obrigatório.' }),
+				senha: z.string({ required_error: 'A senha que você inseriu está incorreta.' })
+					.min(8, { message: 'A senha deve ter pelo menos 8 caracteres.' })
+					.nonempty({ message: 'A senha que você inseriu está incorreta.' }),
 			}))
 		}
 	},
@@ -46,7 +54,7 @@ export default {
 								<InputText id="nome-input" type="text" name="nome" :fluid="true" variant="filled" />
 								<label for="nome-input" class="form-label">Nome</label>
 							</FloatLabel>
-							<Message v-if="$form.nome?.invalid" class="mt-1" severity="error" size="small"
+							<Message v-if="$form.nome?.invalid" class="mt-1 text-start" severity="error" size="small"
 								variant="simple">
 								{{ $form.nome.error?.message }}
 							</Message>
@@ -57,8 +65,8 @@ export default {
 									variant="filled" />
 								<label for="sobrenome-input" class="form-label">Sobrenome</label>
 							</FloatLabel>
-							<Message v-if="$form.sobrenome?.invalid" class="mt-1" severity="error" size="small"
-								variant="simple">
+							<Message v-if="$form.sobrenome?.invalid" class="mt-1 text-start" severity="error"
+								size="small" variant="simple">
 								{{ $form.sobrenome.error?.message }}
 							</Message>
 						</div>
@@ -69,8 +77,8 @@ export default {
 								variant="filled" />
 							<label for="email-telefone-input" class="form-label">E-mail ou telefone</label>
 						</FloatLabel>
-						<Message v-if="$form.emailTelefone?.invalid" class="mt-1" severity="error" size="small"
-							variant="simple">
+						<Message v-if="$form.emailTelefone?.invalid" class="mt-1 text-start" severity="error"
+							size="small" variant="simple">
 							{{ $form.emailTelefone.error?.message }}
 						</Message>
 					</div>
@@ -79,7 +87,7 @@ export default {
 							<InputText id="senha-input" type="password" name="senha" :fluid="true" variant="filled" />
 							<label for="senha-input" class="form-label">Nova senha</label>
 						</FloatLabel>
-						<Message v-if="$form.senha?.invalid" class="mt-1" severity="error" size="small"
+						<Message v-if="$form.senha?.invalid" class="mt-1 text-start" severity="error" size="small"
 							variant="simple">
 							{{ $form.senha.error?.message }}
 						</Message>
