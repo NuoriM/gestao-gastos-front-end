@@ -1,0 +1,42 @@
+@use './base.scss' as colors;
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+  background-color: colors.$app-color;
+  font-family: colors.$app-font;
+}
+
+.logo-font {
+  font-family: colors.$logo-font;
+  color: colors.$app-primary-color;
+  font-weight: 400;
+  font-style: normal;
+  .big {
+    font-size: 2.5rem;
+  }
+}
+
+.app-footer {
+  background-color: colors.$app-primary-color;
+}
+
+.router-link-active,
+.router-link-active .p-button-label {
+  color: colors.$app-primary-color;
+}
+
+a {
+  color: colors.$app-primary-color;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: 0.4s;
+  padding: 0.25rem;
+}
+
+@media (hover: hover) {
+  a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+  }
+}
