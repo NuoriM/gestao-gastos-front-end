@@ -11,14 +11,16 @@ export default {
 			dadosLogin: <ILogarRequest>{},
 			resolver: zodResolver(z.object({
 				emailTelefone: z.string({ required_error: 'O e-mail ou telefone que você inseriu não está vinculado a nenhuma conta.' })
-				.email({ message: 'O e-mail inserido é inválido' }),
-				senha: z.string({ required_error: 'A senha é obrigatória' }),
+					.email({ message: 'O e-mail inserido é inválido.' }),
+				senha: z.string({ required_error: 'A senha inserida é inválida.' })
+					.nonempty({ message: 'A senha inserida é inválida.' }),
 			}))
 		}
 	},
 
 	methods: {
 		entrar(event: any) {
+			console.log(event);
 			if (event.valid) {
 				console.log('Logado com sucesso');
 			}
