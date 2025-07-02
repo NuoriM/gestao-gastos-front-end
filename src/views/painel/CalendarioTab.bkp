@@ -1,0 +1,72 @@
+<template>
+  <div class="container my-4">
+    <div class="row">
+      <div class="col-md" style="height: 1vh">
+        <v-sheet>
+          <v-calendar
+            ref="calendar"
+            v-model="value"
+            :events="events"
+            :type="type"
+            @click:date="viewDay"
+          >
+            <template #header>
+              <div class="d-flex justify-content-between p-2 align-items-center">
+                <Button label="Hoje" outlined @click="value = [new Date()]" />
+                <div class="text-center">
+                  <h5 class="mb-0">{{ obterMesAtual() }}</h5>
+                </div>
+                <div class="d-flex gap-2">
+                  <Button icon="pi pi-chevron-left" size="small" outlined rounded @click="prev()" />
+                  <Button
+                    icon="pi pi-chevron-right"
+                    size="small"
+                    outlined
+                    rounded
+                    @click="next()"
+                    class="ms-2"
+                  />
+                </div>
+              </div>
+            </template>
+          </v-calendar>
+        </v-sheet>
+      </div>
+    </div>
+  </div>
+</template>
+<script setup>
+import moment from 'moment'
+import 'moment/dist/locale/pt-br'
+import { ref } from 'vue'
+moment.locale('pt-br')
+
+const calendar = ref()
+const type = ref('month')
+const value = ref([moment(new Date()).format('YYYY-MM-DD')])
+const events = ref([])
+
+function viewDay(event) {
+	console.log('Evento clicado:', event)
+  if (event && event.date) {
+    console.log(`Dia clicado: ${event.date}`)
+  } else {
+    console.log('Nenhuma data encontrada no evento.')
+  }
+}
+
+function obterMesAtual() {
+  return moment(this.value[0]).format('MMMM YYYY')
+}
+
+function next() {
+  const date = new Date(this.value[0])
+  date.setMonth(date.getMonth() + 1)
+  this.value = [date]
+}
+function prev() {
+  const date = new Date(this.value[0])
+  date.setMonth(date.getMonth() - 1)
+  this.value = [date]
+}
+</script>

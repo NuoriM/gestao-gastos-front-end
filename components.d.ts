@@ -8,8 +8,16 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Avatar: typeof import('primevue/avatar')['default']
     Button: typeof import('primevue/button')['default']
+    Calendar: typeof import('primevue/calendar')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
+    DatePicker: typeof import('primevue/datepicker')['default']
+    Dialog: typeof import('primevue/dialog')['default']
+    Drawer: typeof import('primevue/drawer')['default']
+    Dropdown: typeof import('primevue/dropdown')['default']
+    DynamicDialog: typeof import('primevue/dynamicdialog')['default']
+    FileUpload: typeof import('primevue/fileupload')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     Form: typeof import('@primevue/forms/form')['default']
@@ -17,18 +25,31 @@ declare module 'vue' {
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
+    IconField: typeof import('primevue/iconfield')['default']
     IconSupport: typeof import('./src/components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
+    InputGroup: typeof import('primevue/inputgroup')['default']
+    InputGroupAddon: typeof import('primevue/inputgroupaddon')['default']
+    InputIcon: typeof import('primevue/inputicon')['default']
+    InputNumber: typeof import('primevue/inputnumber')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    Menu: typeof import('primevue/menu')['default']
     Message: typeof import('primevue/message')['default']
     PanelMenu: typeof import('primevue/panelmenu')['default']
+    Password: typeof import('primevue/password')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ScrollPanel: typeof import('primevue/scrollpanel')['default']
+    ScrollTop: typeof import('primevue/scrolltop')['default']
+    Sidebar: typeof import('./src/components/Sidebar.vue')['default']
+    Textarea: typeof import('primevue/textarea')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
   export interface GlobalDirectives {
     Ripple: typeof import('primevue/ripple')['default']
+    StyleClass: typeof import('primevue/styleclass')['default']
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

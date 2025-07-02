@@ -34,12 +34,12 @@ export default {
 					title: 'Conduta do Usuário',
 					content: `
       <p>Você concorda em usar o Serviço apenas para fins legais e de acordo com estes Termos. Você não deve:</p>
-      <ul>
+      <ol>
         <li>Violar quaisquer leis ou regulamentos aplicáveis.</li>
         <li>Infringir os direitos de terceiros.</li>
         <li>Interferir ou interromper o Serviço ou seus servidores.</li>
         <li>Tentar obter acesso não autorizado a qualquer parte do Serviço.</li>
-      </ul>
+      </ol>
     `,
 				},
 				{

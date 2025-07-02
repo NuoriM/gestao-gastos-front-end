@@ -1,11 +1,16 @@
-<script setup lang="ts">
-import type { IRegistroRequest } from '@/core/interfaces/registro-request.interface';
-</script>
 <script lang="ts">
+import { useAutenticacaoStore } from '@/stores/autenticacao';
+import type { IRegistroRequest } from '@/core/interfaces/registro-request.interface';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
+import { isEmailOrPhone } from '@/core/utils/validators';
 
 export default {
+	setup() {
+		const autenticacaoStore = useAutenticacaoStore();
+
+		return { autenticacaoStore };
+	},
 	data() {
 		return {
 			dadosRegistro: <IRegistroRequest>{},
@@ -18,7 +23,10 @@ export default {
 					.nonempty({ message: 'O sobrenome é obrigatório.' }),
 				emailTelefone: z.string({ required_error: 'O email ou telefone é obrigatório.' })
 					.min(5, { message: 'O email ou telefone deve ter pelo menos 5 caracteres.' })
-					.nonempty({ message: 'O email ou telefone é obrigatório.' }),
+					.nonempty({ message: 'O email ou telefone é obrigatório.' })
+					.refine(isEmailOrPhone, {
+						message: 'Insira um e-mail ou telefone válido.',
+					}),
 				senha: z.string({ required_error: 'A senha que você inseriu está incorreta.' })
 					.min(8, { message: 'A senha deve ter pelo menos 8 caracteres.' })
 					.nonempty({ message: 'A senha que você inseriu está incorreta.' }),
@@ -26,9 +34,14 @@ export default {
 		}
 	},
 	methods: {
-		registrar(event: any) {
+		async registrar(event: any) {
 			if (event.valid) {
-				console.log('Registrado com sucesso');
+				const data = await this.autenticacaoStore.registrar(event.values);
+				if (data.status !== 200) {
+					// TODO: Alertar o erro, ex: não foi possivel criar a conta ou outro
+					return;
+				}
+				this.$router.push({ path: '/' });
 			}
 		},
 	},
@@ -84,7 +97,8 @@ export default {
 					</div>
 					<div class="mb-3 px-4">
 						<FloatLabel variant="in">
-							<InputText id="senha-input" type="password" name="senha" :fluid="true" variant="filled" />
+							<Password id="senha-input" name="senha" :feedback="false" variant="filled" toggleMask
+								fluid />
 							<label for="senha-input" class="form-label">Nova senha</label>
 						</FloatLabel>
 						<Message v-if="$form.senha?.invalid" class="mt-1 text-start" severity="error" size="small"

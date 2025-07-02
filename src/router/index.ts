@@ -1,3 +1,4 @@
+import { useAutenticacaoStore } from '@/stores/autenticacao'
 import LoginView from '@/views/login/LoginView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -7,39 +8,69 @@ const router = createRouter({
     {
       path: '/',
       name: 'login',
+      meta: { requiresGuest: true },
       component: LoginView,
     },
     {
       path: '/registro',
       name: 'registro',
+      meta: { requiresGuest: true },
       component: () => import('../views/registro/RegisterView.vue'),
+    },
+    {
+      path: '/sistema',
+      name: 'sistema',
+      meta: { requiresAuth: true, secao: 'Planejamento' },
+      component: () => import('../views/painel/SistemaView.vue'),
+      children: [
+        {
+          path: 'painel',
+          name: 'painel',
+          meta: { ico: 'pi pi-home' },
+          component: () => import('../views/painel/PainelTab.vue'),
+        },
+        {
+          path: 'calendario',
+          name: 'calendario',
+          meta: { ico: 'pi pi-calendar' },
+          component: () => import('../views/painel/CalendarioTab.vue'),
+        },
+      ],
     },
     {
       path: '/informacoes-legais',
       name: 'informacoes-legais',
+      meta: { secao: 'Legal', requiresAuth: false, requiresGuest: false  },
       component: () => import('../views/informacoes-legais/InfoLegaisView.vue'),
       children: [
         {
           path: 'termos-de-uso',
           name: 'termos-de-uso',
-          component: () => import('../views/informacoes-legais/TermosUsoView.vue'),
+          meta: { ico: 'pi pi-file' },
+          component: () => import('../views/informacoes-legais/TermosUsoTab.vue'),
         },
         {
           path: 'politica-de-privacidade',
           name: 'politica-de-privacidade',
-          component: () => import('../views/informacoes-legais/PoliticaPrivacidadeView.vue'),
+          meta: { ico: 'pi pi-lock' },
+          component: () => import('../views/informacoes-legais/PoliticaPrivacidadeTab.vue'),
         },
       ],
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue'),
-    // },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const autenticacaoStore = useAutenticacaoStore()
+  const isAutenticado = autenticacaoStore.isAuthenticated
+
+  if (to.meta.requiresAuth && !isAutenticado) {
+    next('/') // TODO: Considere redirecionar para uma página de login ou abrir um modal de login
+  } else if (to.meta.requiresGuest && isAutenticado) {
+    next('/sistema/painel')
+  } else {
+    next()
+  }
 })
 
 export default router

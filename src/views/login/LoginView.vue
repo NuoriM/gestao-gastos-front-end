@@ -1,17 +1,24 @@
-<script setup lang="ts">
-import type { ILogarRequest } from '@/core/interfaces/login-request.interface';
+<script lang="ts">
+import { useAutenticacaoStore } from '@/stores/autenticacao';
+import type { IEntrarRequest } from '@/core/interfaces/entrar-request.interface';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
+import { isEmailOrPhone } from '@/core/utils/validators';
 
-</script>
-<script lang="ts">
 export default {
+	setup() {
+		const autenticacaoStore = useAutenticacaoStore();
+
+		return { autenticacaoStore };
+	},
 	data() {
 		return {
-			dadosLogin: <ILogarRequest>{},
+			dadosAcesso: <IEntrarRequest>{},
 			resolver: zodResolver(z.object({
 				emailTelefone: z.string({ required_error: 'O e-mail ou telefone que você inseriu não está vinculado a nenhuma conta.' })
-					.email({ message: 'O e-mail inserido é inválido.' }),
+					.refine(isEmailOrPhone, {
+						message: 'Insira um e-mail ou telefone válido.',
+					}),
 				senha: z.string({ required_error: 'A senha inserida é inválida.' })
 					.nonempty({ message: 'A senha inserida é inválida.' }),
 			}))
@@ -19,10 +26,14 @@ export default {
 	},
 
 	methods: {
-		entrar(event: any) {
-			console.log(event);
+		async entrar(event: any) {
 			if (event.valid) {
-				console.log('Logado com sucesso');
+				const resp = await this.autenticacaoStore.entrar(event.values);
+				if (resp.status !== 200) {
+					return;
+				}
+				sessionStorage.setItem('token', resp.data.token);
+				this.$router.push({ path: '/sistema/painel' });
 			}
 		}
 	}
@@ -41,7 +52,7 @@ export default {
 			<div class="col-md align-content-center" style="height: 30rem;">
 				<h1 class=" d-block d-md-none logo-font text-center mb-4">Gestão de Gastos
 				</h1>
-				<Form v-slot="$form" :resolver="resolver" :initialValues="dadosLogin" @submit="entrar"
+				<Form v-slot="$form" :resolver="resolver" :initialValues="dadosAcesso" @submit="entrar"
 					class="shadow rounded bg-white bg-opacity-75 text-black align-content-center px-4 py-4">
 					<div class="mb-3">
 						<FloatLabel variant="in">
@@ -56,7 +67,8 @@ export default {
 					</div>
 					<div class="mb-3">
 						<FloatLabel variant="in">
-							<InputText id="senha-input" type="password" name="senha" :fluid="true" variant="filled" />
+							<Password id="senha-input" name="senha" :feedback="false" variant="filled" toggleMask
+								fluid />
 							<label for="senha-input" class="form-label">Senha</label>
 						</FloatLabel>
 						<Message v-if="$form.senha?.invalid" class="mt-1" severity="error" size="small"

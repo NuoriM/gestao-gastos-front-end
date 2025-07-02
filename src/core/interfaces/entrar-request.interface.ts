@@ -1,4 +1,4 @@
-export interface ILogarRequest {
+export interface IEntrarRequest {
 	emailTelefone: string;
 	senha: string;
 }
