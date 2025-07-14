@@ -2,8 +2,7 @@
 import { useAutenticacaoStore } from '@/stores/autenticacao';
 import type { IEntrarRequest } from '@/core/interfaces/entrar-request.interface';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { z } from 'zod';
-import { isEmailOrPhone } from '@/core/utils/validators';
+import { loginSchema } from '@/core/schemas/login/login.schema';
 
 export default {
 	setup() {
@@ -14,14 +13,7 @@ export default {
 	data() {
 		return {
 			dadosAcesso: <IEntrarRequest>{},
-			resolver: zodResolver(z.object({
-				emailTelefone: z.string({ required_error: 'O e-mail ou telefone que você inseriu não está vinculado a nenhuma conta.' })
-					.refine(isEmailOrPhone, {
-						message: 'Insira um e-mail ou telefone válido.',
-					}),
-				senha: z.string({ required_error: 'A senha inserida é inválida.' })
-					.nonempty({ message: 'A senha inserida é inválida.' }),
-			}))
+			resolver: zodResolver(loginSchema)
 		}
 	},
 
