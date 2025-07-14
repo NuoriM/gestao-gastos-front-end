@@ -1,32 +1,32 @@
 export interface IProduto {
   idProduto: number
   descricao: string
-  idCategoria: number
-  valorTotalParcelado: number
+  idCategoriaCompra: number
+  valorTotal: number
   valorTotalAVista?: number
-  dataCompra: Date
-  formaPagamento: number
+  dataRealizacao: Date
+  formaPagamento: string
   qtdParcelas: number
   taxaJuros: number
   valorParcela: number
   jurosTotais: number
-  dataVencimentoPrimeiraParcela: Date
+  dataPrimeiraParcela: Date
   lojaOuFornecedor: string
   observacao?: string
 }
 export class Produto implements IProduto {
-  idCategoria!: number
-  formaPagamento!: number
+  idCategoriaCompra!: number
+  formaPagamento!: string
   qtdParcelas!: number
   taxaJuros!: number
   valorParcela!: number
   jurosTotais!: number
-  dataVencimentoPrimeiraParcela!: Date
+  dataPrimeiraParcela!: Date
   lojaOuFornecedor!: string
   idProduto!: number
   descricao!: string
-  valorTotalParcelado!: number
+  valorTotal!: number
   valorTotalAVista?: number
-  dataCompra!: Date
+  dataRealizacao!: Date
   observacao?: string
 }

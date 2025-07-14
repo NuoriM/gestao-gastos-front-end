@@ -35,12 +35,18 @@ const router = createRouter({
           meta: { ico: 'pi pi-calendar' },
           component: () => import('../views/painel/CalendarioTab.vue'),
         },
+        {
+          path: 'categorias',
+          name: 'categorias',
+          meta: { ico: 'pi pi-tag' },
+          component: () => import('../views/painel/CategoriaTab.vue'),
+        },
       ],
     },
     {
       path: '/informacoes-legais',
       name: 'informacoes-legais',
-      meta: { secao: 'Legal', requiresAuth: false, requiresGuest: false  },
+      meta: { secao: 'Legal', requiresAuth: false, requiresGuest: false },
       component: () => import('../views/informacoes-legais/InfoLegaisView.vue'),
       children: [
         {

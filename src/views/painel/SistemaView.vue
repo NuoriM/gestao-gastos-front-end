@@ -3,14 +3,14 @@
     <Drawer
       v-model:visible="visivel"
       header="Drawer"
-      :dismissable="false"
+      :dismissable="true"
       :pt="{
         root: {
           class: 'position-relative',
         },
         mask: {
           // class: 'bg-transparent dark:bg-transparent p-events-none',
-          style: 'pointer-events: none;',
+          //   style: 'pointer-events: none;',
         },
       }"
     >
@@ -201,7 +201,8 @@ export default {
               label: 'Sair',
               icon: 'pi pi-sign-out',
               command: () => {
-                this.$router.push('/sair')
+                sessionStorage.removeItem('token')
+                window.location.reload()
               },
             },
           ],
