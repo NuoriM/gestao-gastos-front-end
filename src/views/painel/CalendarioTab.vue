@@ -252,118 +252,8 @@
                 </template>
               </Column>
             </DataTable>
-            <!-- <FloatLabel variant="in">
-              <InputNumber
-                id="valor-parcela-input"
-                v-model="valorParcela"
-                mode="currency"
-                currency="BRL"
-                locale="pt-BR"
-                :fluid="true"
-                variant="filled"
-                disabled
-              />
-              <label for="valor-parcela-input">Valor da Parcela</label>
-            </FloatLabel> -->
           </div>
-          <!-- <div class="col-md-6">
-            <FloatLabel variant="in">
-              <InputNumber
-                id="nao-decidido-input"
-                name="naoDecidido"
-                :fluid="true"
-                variant="filled"
-                disabled
-              />
-              <label for="nao-decidido-input"> Não decidido </label>
-            </FloatLabel>
-            <Message
-              v-if="$form.dataPrimeiraParcela?.invalid"
-              class="mt-1"
-              severity="error"
-              size="small"
-              variant="simple"
-            >
-              {{ $form.dataPrimeiraParcela.error?.message }}
-            </Message>
-          </div> -->
         </div>
-        <!-- <div class="row mb-3">
-          
-          <div class="col-md-6">
-            <FloatLabel variant="in">
-              <InputNumber
-                id="taxa-juros-input"
-                name="taxaJuros"
-                mode="currency"
-                currency="BRL"
-                locale="pt-BR"
-                :fluid="true"
-                variant="filled"
-                disabled
-              />
-              <label for="taxa-juros-input">Taxa de Juros</label>
-            </FloatLabel>
-            <Message
-              v-if="$form.taxaJuros?.invalid"
-              class="mt-1"
-              severity="error"
-              size="small"
-              variant="simple"
-            >
-              {{ $form.taxaJuros.error?.message }}
-            </Message>
-          </div>
-        </div> -->
-        <!-- <div class="row mb-3">
-          <div class="col-md-6">
-            <FloatLabel variant="in">
-              <InputNumber
-                id="juros-totais-input"
-                name="jurosTotais"
-                mode="currency"
-                currency="BRL"
-                locale="pt-BR"
-                :fluid="true"
-                variant="filled"
-                disabled
-              />
-              <label for="juros-totais-input">Juros Totais</label>
-            </FloatLabel>
-            <Message
-              v-if="$form.jurosTotais?.invalid"
-              class="mt-1"
-              severity="error"
-              size="small"
-              variant="simple"
-            >
-              {{ $form.jurosTotais.error?.message }}
-            </Message>
-          </div>
-          <div class="col-md-6">
-            <FloatLabel variant="in" class="optional">
-              <InputNumber
-                id="valorTotalAVista-compra-input"
-                name="valorTotalAVista"
-                mode="currency"
-                currency="BRL"
-                locale="pt-BR"
-                :fluid="true"
-                variant="filled"
-              />
-              <label for="valorTotalAVista-compra-input">Valor Total à Vista</label>
-            </FloatLabel>
-            <Message
-              v-if="$form.valorTotalAVista?.invalid"
-              class="mt-1"
-              severity="error"
-              size="small"
-              variant="simple"
-            >
-              {{ $form.valorTotalAVista.error?.message }}
-            </Message>
-          </div>
-        </div> -->
       </div>
 
       <!-- Observações e Comprovante -->
@@ -531,8 +421,6 @@ export default {
   watch: {
     codigoCalendarioSelecionado() {
       this.obterComprasPorCalendario()
-      // if (codigo) {
-      // }
     },
   },
   methods: {
