@@ -1,4 +1,4 @@
-import { useAutenticacaoStore } from '@/stores/autenticacao'
+import { useAutenticacaoStore } from '@/stores/autenticacao.store'
 import LoginView from '@/views/login/LoginView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 

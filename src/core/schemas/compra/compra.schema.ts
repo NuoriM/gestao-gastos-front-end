@@ -7,7 +7,7 @@ export const compraSchema = z
       .nonempty({ message: 'A descricao da compra é obrigatório.' })
       .max(100, { message: 'A descricao da compra não pode ter mais de 100 caracteres.' })
       .min(3, { message: 'A descricao da compra deve ter pelo menos 3 caracteres.' }),
-    idCategoriaCompra: z
+    idCategoria: z
       .number({ required_error: 'A categoria da compra é obrigatória.' })
       .refine((value) => value > 0, {
         message: 'A categoria da compra deve ser selecionada.',
@@ -28,16 +28,16 @@ export const compraSchema = z
         message: 'A quantidade de parcelas deve ser maior que zero.',
       })
       .nullable(),
-    taxaJuros: z.number({ required_error: 'A taxa de juros é obrigatória.' }).nullable(),
-    valorParcela: z.number().nullable(),
-    jurosTotais: z.number().nullable(),
-    valorTotalAVista: z.number().nullable().optional(),
+    // taxaJuros: z.number({ required_error: 'A taxa de juros é obrigatória.' }).nullable(),
+    // valorParcela: z.number().nullable(),
+    // jurosTotais: z.number().nullable(),
+    // valorTotalAVista: z.number().nullable().optional(),
 
-    dataPrimeiraParcela: z
-      .date({
-        required_error: 'A data de vencimento da primeira parcela é obrigatória.',
-      })
-      .nullable(),
+    // dataPrimeiraParcela: z
+    //   .date({
+    //     required_error: 'A data de vencimento da primeira parcela é obrigatória.',
+    //   })
+    //   .nullable(),
     dataRealizacao: z.date({ required_error: 'A data de compra é obrigatória.' }),
     lojaOuFornecedor: z
       .string({ required_error: 'O nome da loja ou fornecedor é obrigatório.' })
@@ -63,12 +63,12 @@ export const compraSchema = z
         })
       }
 
-      if (data.dataPrimeiraParcela == null) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'A data de vencimento da primeira parcela deve ser preenchida.',
-          path: ['dataPrimeiraParcela'],
-        })
-      }
+      // if (data.dataPrimeiraParcela == null) {
+      //   ctx.addIssue({
+      //     code: z.ZodIssueCode.custom,
+      //     message: 'A data de vencimento da primeira parcela deve ser preenchida.',
+      //     path: ['dataPrimeiraParcela'],
+      //   })
+      // }
     }
   })

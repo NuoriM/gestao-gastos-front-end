@@ -1,5 +1,5 @@
 <script lang="ts">
-import { useAutenticacaoStore } from '@/stores/autenticacao';
+import { useAutenticacaoStore } from '@/stores/autenticacao.store';
 import type { IRegistroRequest } from '@/core/interfaces/registro-request.interface';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { registroSchema } from '@/core/schemas/registro/registro.schema';

@@ -1,7 +1,7 @@
 export interface IProduto {
   idProduto: number
   descricao: string
-  idCategoriaCompra: number
+  idCategoria: number
   valorTotal: number
   valorTotalAVista?: number
   dataRealizacao: Date
@@ -15,7 +15,7 @@ export interface IProduto {
   observacao?: string
 }
 export class Produto implements IProduto {
-  idCategoriaCompra!: number
+  idCategoria!: number
   formaPagamento!: string
   qtdParcelas!: number
   taxaJuros!: number

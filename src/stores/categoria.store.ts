@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useAutenticacaoStore } from './autenticacao'
+import { useAutenticacaoStore } from './autenticacao.store'
 import axios from 'axios'
 import { environment } from '@/environment/environment-dsv'
 

@@ -172,7 +172,7 @@
 </template>
 <script lang="ts">
 import { categoriaSchema } from '@/core/schemas/categoria/categoria.schema'
-import { useCategoriaStore } from '@/stores/categoria'
+import { useCategoriaStore } from '@/stores/categoria.store'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import FloatLabel from 'primevue/floatlabel'
 

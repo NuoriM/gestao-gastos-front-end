@@ -113,7 +113,8 @@ export default {
             return {
               label: this.formatLabel(child.name),
               command: () => {
-                this.$router.push(route.path + targetPath)
+                this.$router.push(route.path + targetPath);
+                this.visivel = false
               },
               icon: child.meta?.ico,
             }
