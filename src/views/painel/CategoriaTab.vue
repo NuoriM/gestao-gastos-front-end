@@ -9,18 +9,66 @@
               label="Nova Categoria"
               icon="pi pi-plus"
               variant="success"
-              @click="adicionarNovaCategoria"
+              @click="abrirModalNovaCategoria"
               size="small"
             />
           </div>
+          <!-- Skeleton de carregamento -->
+          <div v-if="isLoading">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <Skeleton height="24px" width="150px" />
+              <Skeleton height="32px" width="120px" />
+            </div>
+            
+            <!-- Skeleton da tabela -->
+            <div class="card">
+              <div class="card-body p-0">
+                <!-- Header da tabela -->
+                <div class="row g-0 border-bottom bg-light">
+                  <div class="col-2 p-3 text-center">
+                    <Skeleton height="16px" width="60px" class="mx-auto" />
+                  </div>
+                  <div class="col-5 p-3 text-center">
+                    <Skeleton height="16px" width="80px" class="mx-auto" />
+                  </div>
+                  <div class="col-2 p-3 text-center">
+                    <Skeleton height="16px" width="40px" class="mx-auto" />
+                  </div>
+                  <div class="col-3 p-3 text-center">
+                    <Skeleton height="16px" width="60px" class="mx-auto" />
+                  </div>
+                </div>
+                
+                <!-- Linhas da tabela -->
+                <div v-for="i in 5" :key="i" class="row g-0 border-bottom">
+                  <div class="col-2 p-3 text-center">
+                    <Skeleton height="16px" width="30px" class="mx-auto" />
+                  </div>
+                  <div class="col-5 p-3 text-center">
+                    <Skeleton height="16px" width="120px" class="mx-auto" />
+                  </div>
+                  <div class="col-2 p-3 text-center">
+                    <Skeleton height="32px" width="32px" shape="circle" class="mx-auto" />
+                  </div>
+                  <div class="col-3 p-3 text-center">
+                    <div class="d-flex justify-content-center gap-1">
+                      <Skeleton height="24px" width="24px" shape="circle" />
+                      <Skeleton height="24px" width="24px" shape="circle" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela real -->
           <DataTable
+            v-else
             scrollable
-            v-model:selection="categoriasSelecionadas"
             :value="categorias"
             paginator
             stripedRows
             :rows="5"
-            :loading="isLoading"
             :rowsPerPageOptions="[5, 10, 20, 50]"
           >
             <template #empty>
@@ -28,21 +76,21 @@
                 <i class="pi pi-info-circle text-2xl text-success" />
                 <p class="mt-2 text-900 font-medium">Nenhuma categoria encontrada</p>
                 <small class="d-block text-600"
-                  >Clique no bot o <i class="pi pi-plus"></i> para adicionar uma nova
+                  >Clique no botão <i class="pi pi-plus"></i> para adicionar uma nova
                   categoria.</small
                 >
               </div>
             </template>
             <Column
-              field="idCategoria"
-              header="Código"
-              style="width: 10%"
+              field="nome"
+              header="Nome"
+              style="width: 25%"
               headerStyle="text-align: center"
             ></Column>
             <Column
-              field="nome"
-              header="Nome"
-              style="width: 50%"
+              field="nomeCalendario"
+              header="Calendário"
+              style="width: 25%"
               headerStyle="text-align: center"
             ></Column>
             <Column field="corHex" header="Cor" style="width: 10%" headerStyle="text-align: center">
@@ -74,107 +122,15 @@
       </div>
     </div>
   </div>
-  <Dialog
-    v-model:visible="visible"
-    :draggable="false"
-    modal
-    :header="categoria.idCategoria ? 'Editar Categoria' : 'Nova Categoria'"
-    :style="{ width: '50rem', position: 'relative', overflow: 'hidden' }"
-    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-  >
-    <OverlayCarregando :visible="isEnviando" />
-    <Form
-      ref="formCategoriaRef"
-      v-slot="$form"
-      :resolver="resolver"
-      :initialValues="categoria"
-      @submit="submitForm"
-    >
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <FloatLabel variant="in" class="required">
-            <InputText id="nome-categoria-input" name="nome" :fluid="true" variant="filled" />
-            <label for="nome-categoria-input">Nome</label>
-          </FloatLabel>
-
-          <Message
-            v-if="$form.nome?.invalid"
-            class="mb-1 mt-1"
-            severity="error"
-            size="small"
-            variant="simple"
-          >
-            {{ $form.nome.error?.message }}
-          </Message>
-        </div>
-        <div class="col-md-6">
-          <InputGroup>
-            <InputGroupAddon> # </InputGroupAddon>
-            <InputText
-              id="corHex"
-              name="corHex"
-              :fluid="true"
-              v-model="categoria.corHex"
-              variant="filled"
-            />
-            <InputGroupAddon>
-              <ColorPicker v-model="categoria.corHex" inputId="corHex" format="hex"
-            /></InputGroupAddon>
-          </InputGroup>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md">
-          <FloatLabel variant="in" class="optional">
-            <Textarea
-              ref="descricaoRef"
-              name="descricao"
-              @input="handleDescricaoInput"
-              :fluid="true"
-              variant="filled"
-              rows="4"
-              :maxlength="descricaoMax"
-            />
-            <label for="descricao-input">Descrição</label>
-          </FloatLabel>
-          <Message
-            v-if="$form.descricao?.invalid"
-            class="mt-1"
-            severity="error"
-            size="small"
-            variant="simple"
-          >
-            {{ $form.descricao.error?.message }}
-          </Message>
-          <Knob
-            v-model="qtdCaracteres"
-            :strokeWidth="30"
-            :valueColor="knobColor"
-            :size="20"
-            :max="descricaoMax"
-            readonly
-            style="margin-top: -2rem; margin-left: 0.5rem; z-index: 1; position: relative"
-          />
-        </div>
-      </div>
-    </Form>
-
-    <template #footer>
-      <Button label="Cancelar" icon="pi pi-times" @click="visible = false" variant="outlined" />
-      <Button
-        :label="categoria.idCategoria ? 'Atualizar' : 'Cadastrar'"
-        icon="pi pi-check"
-        @click="() => ($refs.formCategoriaRef as any)?.submit()"
-        variant="success"
-      />
-    </template>
-  </Dialog>
+  <CadastroCategoria
+    v-bind:visible="visible"
+    :categoria="categoriaSelecionada"
+    @visibleEmit="visibleCadastroCategoriaListnerMethod"
+    @atualizarCategoriaEmit="listarCategorias"
+  />
 </template>
 <script lang="ts">
-import { categoriaSchema } from '@/core/schemas/categoria/categoria.schema'
 import { useCategoriaStore } from '@/stores/categoria.store'
-import { zodResolver } from '@primevue/forms/resolvers/zod'
-import FloatLabel from 'primevue/floatlabel'
 
 export default {
   setup() {
@@ -185,21 +141,12 @@ export default {
 
   data() {
     return {
-      categoriasSelecionadas: null,
+      categoriaSelecionada: {},
       isEnviando: false,
       isLoading: true,
       visible: false,
       corHEX: '',
-      descricaoMax: 280,
-      categoria: {
-        idCategoria: 0,
-        nome: '',
-        descricao: '',
-        corHex: 'ff0000',
-      },
-      qtdCaracteres: 0,
       categorias: [],
-      resolver: zodResolver(categoriaSchema),
     }
   },
 
@@ -208,9 +155,8 @@ export default {
   },
 
   methods: {
-    adicionarNovaCategoria() {
-      this.categoria = {
-        idCategoria: 0,
+    abrirModalNovaCategoria() {
+      this.categoriaSelecionada = {
         nome: '',
         descricao: '',
         corHex: 'ff0000',
@@ -219,40 +165,13 @@ export default {
     },
 
     abrirModalEditar(categoria: any) {
-      this.categoria = categoria
+      this.categoriaSelecionada = categoria
       this.visible = true
-    },
-
-    async submitForm(event: any) {
-      this.isEnviando = true
-
-      if (event.valid) {
-        const formData = event.values
-        if (this.categoria.idCategoria) {
-          formData.idCategoria = this.categoria.idCategoria
-        }
-        formData.corHex = this.categoria.corHex
-
-        try {
-          const response = this.categoria.idCategoria
-            ? await this.categoriaStore.editar(formData)
-            : await this.categoriaStore.cadastrar(formData)
-
-          this.visible = false
-          this.refresh()
-        } catch (error) {
-          console.error('Erro ao cadastrar/alterar categoria:', error)
-        }
-
-        this.isEnviando = false
-      }
-
-      this.isEnviando = false
     },
 
     async removerCategoria(id: number) {
       await this.categoriaStore.remover(id)
-      this.refresh()
+      this.listarCategorias()
     },
 
     async listarCategorias() {
@@ -262,26 +181,8 @@ export default {
       this.categorias = response.data.content
     },
 
-    refresh() {
-      this.listarCategorias()
-    },
-
-    handleDescricaoInput(event: Event) {
-      const target = event.target as HTMLTextAreaElement
-      if (this.descricaoMax - target.value.length < 0) return
-      this.qtdCaracteres = target.value.length
-    },
-  },
-
-  computed: {
-    knobColor() {
-      if (
-        this.qtdCaracteres > this.descricaoMax - 50 &&
-        this.qtdCaracteres <= this.descricaoMax - 10
-      )
-        return 'orange'
-      if (this.qtdCaracteres > this.descricaoMax - 10) return 'red'
-      return 'MediumTurquoise' // ou 'green' ou cor padrão
+    visibleCadastroCategoriaListnerMethod(visible: boolean) {
+      this.visible = visible
     },
   },
 }

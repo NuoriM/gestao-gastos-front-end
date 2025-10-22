@@ -15,7 +15,7 @@ const router = createRouter({
       path: '/registro',
       name: 'registro',
       meta: { requiresGuest: true },
-      component: () => import('../views/registro/RegisterView.vue'),
+      component: () => import('../views/registro/RegistroView.vue'),
     },
     {
       path: '/sistema',
@@ -24,19 +24,19 @@ const router = createRouter({
       component: () => import('../views/painel/SistemaView.vue'),
       children: [
         {
-          path: 'painel',
+          path: '/painel',
           name: 'painel',
           meta: { ico: 'pi pi-home' },
           component: () => import('../views/painel/PainelTab.vue'),
         },
         {
-          path: 'calendario',
+          path: '/calendario',
           name: 'calendario',
           meta: { ico: 'pi pi-calendar' },
           component: () => import('../views/painel/CalendarioTab.vue'),
         },
         {
-          path: 'categorias',
+          path: '/categorias',
           name: 'categorias',
           meta: { ico: 'pi pi-tag' },
           component: () => import('../views/painel/CategoriaTab.vue'),
@@ -63,17 +63,32 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      redirect: '/',
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
   const autenticacaoStore = useAutenticacaoStore()
+  
+  // Verifica se o token expirou antes de cada navegação
+  if (autenticacaoStore.token) {
+    if (!autenticacaoStore.verificarTokenExpirado()) {
+      // Token expirado, redirecionar para login
+      next('/')
+      return
+    }
+  }
+  
   const isAutenticado = autenticacaoStore.isAuthenticated
 
   if (to.meta.requiresAuth && !isAutenticado) {
-    next('/') // TODO: Considere redirecionar para uma página de login ou abrir um modal de login
+    next('/')
   } else if (to.meta.requiresGuest && isAutenticado) {
-    next('/sistema/painel')
+    next('/painel')
   } else {
     next()
   }

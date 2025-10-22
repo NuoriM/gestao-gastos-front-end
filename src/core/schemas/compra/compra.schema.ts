@@ -38,7 +38,10 @@ export const compraSchema = z
     //     required_error: 'A data de vencimento da primeira parcela é obrigatória.',
     //   })
     //   .nullable(),
-    dataRealizacao: z.date({ required_error: 'A data de compra é obrigatória.' }),
+    dataRealizacao: z.union([
+      z.date({ required_error: 'A data de compra é obrigatória.' }),
+      z.string().transform((str) => new Date(str))
+    ]),
     lojaOuFornecedor: z
       .string({ required_error: 'O nome da loja ou fornecedor é obrigatório.' })
       .nonempty({ message: 'O nome da loja ou fornecedor é obrigatório.' })

@@ -15,7 +15,26 @@ export const useCalendarioStore = defineStore('calendario', {
       })
       return response
     },
-    async listarPorCalendario(codigoCalendario: number) {
+
+    async listarCategoriasPorCodigoCalendarioDropdown(codigoCalendario: number) {
+      const response = await axios.get(`${environment.API_URL}/calendario/${codigoCalendario}/categorias/dropdown`, {
+        headers: {
+          Authorization: `Bearer ${useAutenticacaoStore().token}`,
+        },
+      })
+      return response
+    },
+    
+    async cadastrar(dadosCalendario: any) {
+      const response = await axios.post(`${environment.API_URL}/calendario`, dadosCalendario, {
+        headers: {
+          Authorization: `Bearer ${useAutenticacaoStore().token}`,
+        },
+      })
+      return response
+    },
+
+    async listarComprasPorCalendario(codigoCalendario: number) {
       const response = await axios.get(
         `${environment.API_URL}/calendario/${codigoCalendario}/compras`,
         {
@@ -26,5 +45,6 @@ export const useCalendarioStore = defineStore('calendario', {
       )
       return response
     },
+
   },
 })

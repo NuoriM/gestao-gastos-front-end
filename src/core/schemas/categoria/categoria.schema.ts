@@ -10,4 +10,6 @@ export const categoriaSchema = z.object({
     .string({ required_error: 'A cor da categoria é obrigatória.' })
     .nonempty({ message: 'A cor da categoria é obrigatória.' }),
   descricao: z.string().optional(),
+  idCalendario: z
+    .number({ required_error: 'O calendário é obrigatório.' })
 })

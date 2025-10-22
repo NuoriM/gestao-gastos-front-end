@@ -24,6 +24,15 @@ export const useCompraStore = defineStore('compra', {
 
       return resposta
     },
+
+    async editar(idCompra: number, dadosCompra: any) {
+      const resposta = await axios.put(`${environment.API_URL}/compra/${idCompra}`, dadosCompra, {
+        headers: {
+          Authorization: `Bearer ${useAutenticacaoStore().token}`,
+        },
+      })
+      return resposta
+    },
   },
   getters: {},
 })

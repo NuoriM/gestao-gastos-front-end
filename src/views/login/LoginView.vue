@@ -24,8 +24,7 @@ export default {
 				if (resp.status !== 200) {
 					return;
 				}
-				sessionStorage.setItem('token', resp.data.token);
-				this.$router.push({ path: '/sistema/painel' });
+				this.$router.push({ path: '/painel' });
 			}
 		}
 	}

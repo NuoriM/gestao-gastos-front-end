@@ -13,7 +13,7 @@ export const useParcelaStore = defineStore('parcela', {
 				},
 			})
 			return resposta
-		}
+		},
 	},
 	getters: {}
 })

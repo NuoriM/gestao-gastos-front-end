@@ -1,13 +1,3 @@
-<script lang="ts">
-export default {
-	props: {
-		visible: {
-			type: Boolean,
-			default: false,
-		},
-	}
-}
-</script>
 <template>
   <div class="overlay" v-if="visible">
     <ProgressSpinner
@@ -17,10 +7,19 @@ export default {
       animationDuration=".5s"
       aria-label="Custom ProgressSpinner"
     />
-	<p>Processando, aguarde...</p>
+    <p>Processando, aguarde...</p>
   </div>
 </template>
-
+<script lang="ts">
+export default {
+  props: {
+    visible: {
+      type: Boolean,
+      default: false,
+    },
+  },
+}
+</script>
 <style scoped>
 .overlay {
   position: fixed;

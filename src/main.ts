@@ -9,9 +9,11 @@ import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import { definePreset } from '@primeuix/themes'
 import Aura from '@primeuix/themes/aura'
+import axios from 'axios'
 
 import App from './App.vue'
 import router from './router'
+import { useAutenticacaoStore } from './stores/autenticacao.store'
 
 const app = createApp(App)
 
@@ -40,7 +42,36 @@ app.use(PrimeVue, {
   },
 })
 
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
+
+// Configurar interceptors do axios
+// Interceptor de requisição - verifica token antes de enviar
+axios.interceptors.request.use(
+  (config) => {
+    const autenticacaoStore = useAutenticacaoStore()
+    if (autenticacaoStore.token && !autenticacaoStore.verificarTokenExpirado()) {
+      // Token expirado, redirecionar para login
+      router.push('/')
+      return Promise.reject(new Error('Token expirado'))
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
+// Interceptor de resposta - detecta erros de autenticação
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 402) {
+      const autenticacaoStore = useAutenticacaoStore()
+      autenticacaoStore.logout()
+      router.push('/')
+    }
+    return Promise.reject(error)
+  }
+)
 
 app.mount('#app')

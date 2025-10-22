@@ -19,6 +19,10 @@ export default defineConfig({
     vueJsx(),
     vueDevTools(),
   ],
+  server: {
+    host: '0.0.0.0', // Permite acesso de outros dispositivos na rede
+    port: 5173, // Porta padrão do Vite
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

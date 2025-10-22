@@ -2,7 +2,7 @@
   <div>
     <Drawer
       v-model:visible="visivel"
-      header="Drawer"
+      header="Menu"
       :dismissable="true"
       :pt="{
         root: {
@@ -14,7 +14,6 @@
         },
       }"
     >
-      <!-- class="!relative !w-[15rem] md:!w-[15rem] lg:!w-[15rem]" -->
       <template #container>
         <PanelMenu :model="panelMenuItems">
           <template #item="slotProps">
@@ -41,15 +40,6 @@
             </div>
           </template>
         </PanelMenu>
-        <div class="position-absolute top-2" style="right: -45px">
-          <Button
-            icon="pi pi-arrow-left"
-            @click="visivel = false"
-            size="small"
-            rounded
-            severity="secondary"
-          />
-        </div>
         <div style="overflow-y: scroll" class="flex-fill">
           <Menu :model="menuItems">
             <template #item="slotProps">
@@ -64,9 +54,8 @@
         </div>
       </template>
     </Drawer>
-    <!-- :class="['flex-1 transition-margin', visivel ? 'ml-60' : 'ml-0']" -->
     <div>
-      <Toolbar :pt="{ root: { class: 'border-0 border-bottom rounded-0' } }">
+      <Toolbar :pt="{ root: { class: 'border-0 border-bottom rounded-0 position-fixed w-100 top-0', style: 'z-index: 4;' } }">
         <template #start>
           <div class="d-flex align-items-center gap-3">
             <Button
@@ -90,130 +79,124 @@
           </div>
         </template>
       </Toolbar>
-      <RouterView />
     </div>
   </div>
+  <RouterView />
+  <Footer />
 </template>
 <script lang="ts">
 import { useRouter } from 'vue-router'
+import { useAutenticacaoStore } from '@/stores/autenticacao.store'
 
 export default {
   created() {
-    const router = useRouter()
-    const mainRoute = router.options.routes.filter(
-      (route) => route.name === 'sistema' || route.name === 'informacoes-legais',
-    )
-
-    mainRoute.forEach((route) => {
-      if (route.children) {
-        this.menuItems.push({
-          label: route.meta?.secao,
-          items: route.children.map((child) => {
-            let targetPath = child.path.startsWith('/') ? child.path : `/${child.path}`
-            return {
-              label: this.formatLabel(child.name),
-              command: () => {
-                this.$router.push(route.path + targetPath);
-                this.visivel = false
-              },
-              icon: child.meta?.ico,
-            }
-          }),
-        })
-      } else {
-        this.menuItems.push({
-          label: this.formatLabel(route.meta?.secao),
-        })
-      }
-    })
+    this.construirMenuItems()
+    this.construirPanelMenuItems()
   },
 
   data() {
     return {
       visivel: false,
-      menuItems: [
-        // {
-        // 	label: 'Painel',
-        // 	items: [
-        // 		{
-        // 			label: 'Home',
-        // 			icon: 'pi pi-home',
-        // 			command: () => {
-        // 				this.$router.push('/sistema/painel')
-        // 			}
-        // 		},
-        // 		{
-        // 			label: 'Configurações',
-        // 			icon: 'pi pi-cog',
-        // 			command: () => {
-        // 				this.$router.push('/sistema/configuracoes')
-        // 			}
-        // 		}
-        // 	]
-        // },
-        // {
-        // 	label: 'Legal',
-        // 	items: [
-        // 		{
-        // 			label: 'Termos de Uso',
-        // 			icon: 'pi pi-file',
-        // 			command: () => {
-        // 				this.$router.push('/informacoes-legais/termos-de-uso')
-        // 			}
-        // 		},
-        // 		{
-        // 			label: 'Politica de Privacidade',
-        // 			icon: 'pi pi-file',
-        // 			command: () => {
-        // 				this.$router.push('/informacoes-legais/politica-de-privacidade')
-        // 			}
-        // 		}
-        // 	]
-        // }
-      ] as any,
-      panelMenuItems: [
+      menuItems: [] as any[],
+      panelMenuItems: [] as any[],
+    }
+  },
+
+  methods: {
+    construirMenuItems() {
+      const router = useRouter()
+      const rotas = router.options.routes.filter(
+        (route) => route.meta?.secao && route.name !== 'login' && route.name !== 'registro'
+      )
+
+      this.menuItems = rotas.map((rota) => {
+        if (rota.children && rota.children.length > 0) {
+          return {
+            label: rota.meta?.secao,
+            items: rota.children.map((filho) => {
+              const caminhoCompleto = filho.path.startsWith('/') 
+                ? filho.path 
+                : `${rota.path}/${filho.path}`
+              
+              return {
+                label: this.formatarLabel(filho.name),
+                command: () => {
+                  this.$router.push(caminhoCompleto)
+                  this.visivel = false
+                },
+                icon: filho.meta?.ico || 'pi pi-circle',
+              }
+            }),
+          }
+        } else {
+          return {
+            label: this.formatarLabel(rota.meta?.secao),
+            command: () => {
+              this.$router.push(rota.path)
+              this.visivel = false
+            },
+            icon: rota.meta?.ico || 'pi pi-circle',
+          }
+        }
+      })
+    },
+
+    construirPanelMenuItems() {
+      const autenticacaoStore = useAutenticacaoStore()
+      
+      this.panelMenuItems = [
         {
-          label: 'Amy Elsner',
+          label: 'Usuário',
           icon: 'pi pi-angle-down',
           customStyle: true,
           items: [
             {
-              label: 'Configurações',
-              icon: 'pi pi-cog',
-              command: () => {
-                this.$router.push('/sistema/perfil/configuracoes')
-              },
-            },
-            {
               label: 'Perfil',
               icon: 'pi pi-user',
               command: () => {
-                this.$router.push('/sistema/perfil')
+                this.$router.push('/perfil')
+                this.visivel = false
+              },
+            },
+            {
+              label: 'Configurações',
+              icon: 'pi pi-cog',
+              command: () => {
+                this.$router.push('/perfil/configuracoes')
+                this.visivel = false
               },
             },
             {
               label: 'Suporte',
               icon: 'pi pi-question-circle',
               command: () => {
-                this.$router.push('/sistema/perfil/suporte')
+                this.$router.push('/perfil/suporte')
+                this.visivel = false
               },
             },
             {
               label: 'Sair',
               icon: 'pi pi-sign-out',
               command: () => {
+                autenticacaoStore.token = null
                 sessionStorage.removeItem('token')
-                window.location.reload()
+                this.$router.push('/')
               },
             },
           ],
         },
-      ],
-    }
-  },
-  methods: {
-    formatLabel(name: any) {
-      return name.charAt(0).toUpperCase() + name.slice(1).replace('-', ' ')
+      ]
+    },
+
+    formatarLabel(nome: any) {
+      if (!nome) return ''
+      return nome
+        .toString()
+        .charAt(0)
+        .toUpperCase() + nome
+        .toString()
+        .slice(1)
+        .replace(/-/g, ' ')
     },
   },
 }
