@@ -140,6 +140,39 @@ const formatarMoeda = (valor: number) => {
 
           <!-- Conteúdo real -->
           <div v-else>
+            <!-- 1. AÇÕES RÁPIDAS - Mais importante para interação imediata -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="p-4 border rounded">
+                  <h5 class="mb-3">
+                    <i class="pi pi-calendar-plus me-2"></i>
+                    Ações Rápidas
+                  </h5>
+                  <div class="d-grid gap-2 d-md-flex">
+                    <Button
+                      label="Nova Compra"
+                      icon="pi pi-plus"
+                      variant="success"
+                      @click="$router.push('/calendario')"
+                    />
+                    <Button
+                      label="Gerenciar Categorias"
+                      icon="pi pi-tag"
+                      variant="outlined"
+                      @click="$router.push('/categorias')"
+                    />
+                    <Button
+                      label="Ver Calendário"
+                      icon="pi pi-calendar"
+                      variant="outlined"
+                      @click="$router.push('/calendario')"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. RESUMO FINANCEIRO PRINCIPAL - Visão geral dos gastos -->
             <!-- Cards Mobile - 2x2 Grid -->
             <div class="mb-4 d-block d-md-none">
               <div class="row g-3">
@@ -148,16 +181,6 @@ const formatarMoeda = (valor: number) => {
                     <i class="pi pi-wallet text-primary d-block mb-1" style="font-size: 1.5rem"></i>
                     <small class="text-muted d-block">Total Gasto</small>
                     <h6 class="mb-0 text-primary">R$ 0,00</h6>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="p-2 border rounded text-center">
-                    <i
-                      class="pi pi-shopping-cart text-success d-block mb-1"
-                      style="font-size: 1.5rem"
-                    ></i>
-                    <small class="text-muted d-block">Compras</small>
-                    <h6 class="mb-0 text-success">0</h6>
                   </div>
                 </div>
                 <div class="col-6">
@@ -180,23 +203,25 @@ const formatarMoeda = (valor: number) => {
                     </h6>
                   </div>
                 </div>
+                <div class="col-6">
+                  <div class="p-2 border rounded text-center">
+                    <i
+                      class="pi pi-shopping-cart text-success d-block mb-1"
+                      style="font-size: 1.5rem"
+                    ></i>
+                    <small class="text-muted d-block">Compras</small>
+                    <h6 class="mb-0 text-success">0</h6>
+                  </div>
+                </div>
               </div>
             </div>
-            <!-- Cards de Resumo -->
+            <!-- Cards de Resumo Desktop -->
             <div class="row mb-4 d-none d-md-flex">
               <div class="col-md-3 mb-3">
                 <div class="text-center p-3 border rounded">
                   <i class="pi pi-wallet text-primary" style="font-size: 2.5rem"></i>
                   <h4 class="mt-2 mb-1 text-primary">R$ 0,00</h4>
                   <p class="text-muted mb-0">Total Gasto</p>
-                </div>
-              </div>
-
-              <div class="col-md-3 mb-3">
-                <div class="text-center p-3 border rounded">
-                  <i class="pi pi-shopping-cart text-success" style="font-size: 2.5rem"></i>
-                  <h4 class="mt-2 mb-1 text-success">0</h4>
-                  <p class="text-muted mb-0">Total de Compras</p>
                 </div>
               </div>
 
@@ -223,35 +248,17 @@ const formatarMoeda = (valor: number) => {
                   </p>
                 </div>
               </div>
-            </div>
 
-            <!-- Gráficos e Análises -->
-            <div class="row mb-4">
-              <div class="col-12 col-md-6 mb-3">
-                <div class="p-4 border rounded">
-                  <h5 class="mb-3">
-                    <i class="pi pi-chart-pie me-2"></i>
-                    Gastos por Categoria
-                  </h5>
-                  <div v-if="0 === 0" class="text-center text-muted">
-                    <i class="pi pi-info-circle me-2"></i>
-                    Nenhum gasto este mês
-                  </div>
-                  <div v-else>
-                    <div v-for="categoria in 0" :key="categoria + 1" class="mb-2">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small">Categoria ##</span>
-                        <span class="small fw-bold">R$ 0,00</span>
-                      </div>
-                      <ProgressBar :value="0" :showValue="false" style="height: 8px" />
-                      <small class="text-muted">0% + {{ 1 }}%</small>
-                    </div>
-                  </div>
+              <div class="col-md-3 mb-3">
+                <div class="text-center p-3 border rounded">
+                  <i class="pi pi-shopping-cart text-success" style="font-size: 2.5rem"></i>
+                  <h4 class="mt-2 mb-1 text-success">0</h4>
+                  <p class="text-muted mb-0">Total de Compras</p>
                 </div>
               </div>
             </div>
 
-            <!-- Análise de Economia -->
+            <!-- 3. ANÁLISE DE ECONOMIA - Controle de metas e comparações -->
             <div class="row mb-4">
               <div class="col-12 col-md-4 mb-3">
                 <div class="p-4 border rounded text-center">
@@ -309,73 +316,37 @@ const formatarMoeda = (valor: number) => {
               </div>
             </div>
 
-            <!-- Seção de Análise Financeira Avançada -->
+            <!-- 4. ANÁLISE DE GASTOS - Informações complementares -->
             <div class="row mb-4">
-              <div class="col-12 mb-3">
+              <div class="col-12 col-md-6 mb-3">
+                <div class="p-4 border rounded">
+                  <h5 class="mb-3">
+                    <i class="pi pi-chart-pie me-2"></i>
+                    Gastos por Categoria
+                  </h5>
+                  <div v-if="0 === 0" class="text-center text-muted">
+                    <i class="pi pi-info-circle me-2"></i>
+                    Nenhum gasto este mês
+                  </div>
+                  <div v-else>
+                    <div v-for="categoria in 0" :key="categoria + 1" class="mb-2">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small">Categoria ##</span>
+                        <span class="small fw-bold">R$ 0,00</span>
+                      </div>
+                      <ProgressBar :value="0" :showValue="false" style="height: 8px" />
+                      <small class="text-muted">0% + {{ 1 }}%</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 mb-3">
                 <div class="py-4 px-5 border rounded">
                   <h5 class="mb-3">
-                    <i class="pi pi-chart-pie me-2"></i>
-                    Análise Detalhada dos Gastos
+                    <i class="pi pi-chart-bar me-2"></i>
+                    Evolução dos Gastos
                   </h5>
                   <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[15rem]" />
-
-
-
-                </div>
-              </div>
-            </div>
-
-            <!-- Cards de Ações e Resumo -->
-            <div class="row">
-              <div class="col-12 col-md-6 mb-3">
-                <div class="p-4 border rounded">
-                  <h5 class="mb-3">
-                    <i class="pi pi-calendar-plus me-2"></i>
-                    Ações Rápidas
-                  </h5>
-                  <div class="d-grid gap-2">
-                    <Button
-                      label="Nova Compra"
-                      icon="pi pi-plus"
-                      variant="success"
-                      @click="$router.push('/calendario')"
-                      class="mb-2"
-                    />
-                    <Button
-                      label="Gerenciar Categorias"
-                      icon="pi pi-tag"
-                      variant="outlined"
-                      @click="$router.push('/categorias')"
-                      class="mb-2"
-                    />
-                    <Button
-                      label="Ver Calendário"
-                      icon="pi pi-calendar"
-                      variant="outlined"
-                      @click="$router.push('/calendario')"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-12 col-md-6 mb-3">
-                <div class="p-4 border rounded">
-                  <h5 class="mb-3">
-                    <i class="pi pi-chart-pie me-2"></i>
-                    Resumo do Mês
-                  </h5>
-                  <div class="d-flex justify-content-between mb-2">
-                    <span>Compras realizadas:</span>
-                    <strong>0</strong>
-                  </div>
-                  <div class="d-flex justify-content-between mb-2">
-                    <span>Valor gasto:</span>
-                    <strong class="text-success">R$ 0,00</strong>
-                  </div>
-                  <div class="d-flex justify-content-between">
-                    <span>Média por compra:</span>
-                    <strong>R$ 0,00</strong>
-                  </div>
                 </div>
               </div>
             </div>
@@ -402,11 +373,6 @@ const formatarMoeda = (valor: number) => {
 
 /* Melhorias para mobile */
 @media (max-width: 767.98px) {
-  .container {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
   .card {
     margin-bottom: 1rem;
   }
@@ -445,11 +411,6 @@ const formatarMoeda = (valor: number) => {
 
 /* Melhorias para telas muito pequenas */
 @media (max-width: 575.98px) {
-  .col-6 {
-    padding-left: 2px;
-    padding-right: 2px;
-  }
-
   .p-2 {
     padding: 0.5rem !important;
   }

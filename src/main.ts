@@ -14,6 +14,7 @@ import axios from 'axios'
 import App from './App.vue'
 import router from './router'
 import { useAutenticacaoStore } from './stores/autenticacao.store'
+import ToastService from 'primevue/toastservice'
 
 const app = createApp(App)
 
@@ -46,19 +47,28 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
+app.use(ToastService)
 // Configurar interceptors do axios
-// Interceptor de requisição - verifica token antes de enviar
+// Interceptor de requisição - adiciona token automaticamente e verifica expiração
 axios.interceptors.request.use(
   (config) => {
     const autenticacaoStore = useAutenticacaoStore()
-    if (autenticacaoStore.token && !autenticacaoStore.verificarTokenExpirado()) {
+    
+    // Verifica se o token está expirado
+    if (autenticacaoStore.accessToken?.accessToken && !autenticacaoStore.verificarTokenExpirado()) {
       // Token expirado, redirecionar para login
       router.push('/')
       return Promise.reject(new Error('Token expirado'))
     }
+    
+    // Adiciona o token de autorização automaticamente se existir
+    if (autenticacaoStore.accessToken?.accessToken) {
+      config.headers.Authorization = `Bearer ${autenticacaoStore.accessToken.accessToken}`
+    }
+    
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 )
 
 // Interceptor de resposta - detecta erros de autenticação
@@ -71,7 +81,7 @@ axios.interceptors.response.use(
       router.push('/')
     }
     return Promise.reject(error)
-  }
+  },
 )
 
 app.mount('#app')

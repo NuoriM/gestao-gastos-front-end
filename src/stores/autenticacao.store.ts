@@ -20,15 +20,15 @@ function isTokenValid(token: string | null): boolean {
 
 export const useAutenticacaoStore = defineStore('autenticacao', {
   state: () => ({
-    token: sessionStorage.getItem('token'),
+    accessToken: JSON.parse(sessionStorage.getItem('accessToken') || 'null') as any,
   }),
 
   actions: {
     async entrar(dadosAcesso: IEntrarRequest) {
       try {
         const resposta = await axios.post(`${environment.API_URL}/auth/entrar`, dadosAcesso)
-        this.token = resposta.data.token
-        sessionStorage.setItem('token', resposta.data.token)
+        this.accessToken = resposta.data
+        sessionStorage.setItem('accessToken', JSON.stringify(resposta.data))
 
         return resposta
       } catch (error) {
@@ -45,11 +45,11 @@ export const useAutenticacaoStore = defineStore('autenticacao', {
       }
     },
     logout() {
-      this.token = null
-      sessionStorage.removeItem('token')
+      this.accessToken = null
+      sessionStorage.removeItem('accessToken')
     },
     verificarTokenExpirado() {
-      if (!isTokenValid(this.token)) {
+      if (!isTokenValid(this.accessToken.accessToken)) {
         this.logout()
         return false
       }
@@ -57,6 +57,6 @@ export const useAutenticacaoStore = defineStore('autenticacao', {
     },
   },
   getters: {
-    isAuthenticated: (state) => isTokenValid(state.token),
+    isAuthenticated: (state) => isTokenValid(state.accessToken?.accessToken),
   },
 })

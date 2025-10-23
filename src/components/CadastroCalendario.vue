@@ -6,6 +6,7 @@
     header="Cadastrar Calendario"
     :style="{ width: '50rem', position: 'relative', overflow: 'hidden' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    :focusOnShow="false"
   >
     <template #closebutton>
       <Button
@@ -103,41 +104,3 @@ const cadastrarCalendario = async (event: any) => {
 }
 
 </script>
-<!-- <script lang="ts">
-import { zodResolver } from '@primevue/forms/resolvers/zod'
-import OverlayCarregando from './OverlayCarregando.vue'
-import { calendarioSchema } from '@/core/schemas/calendario/calendario.schema'
-
-export default {
-  components: {
-    OverlayCarregando,
-  },
-  data() {
-    return {
-      dadosCalendario: {
-        nome: '',
-        criarCategoriaPadrao: true,
-      },
-      resolver: zodResolver(calendarioSchema),
-      isEnviando: false,
-    }
-  },
-  props: {
-    visible: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  emits: ['visibleEmit'],
-  methods: {
-    cadastrarCalendario(event: any) {
-      this.isEnviando = true
-      if (event.valid) {
-        this.$emit('visibleEmit', false)
-        this.isEnviando = false
-      }
-      this.isEnviando = false
-    },
-  },
-}
-</script> -->

@@ -2,11 +2,11 @@ import { z } from 'zod'
 
 export const compraSchema = z
   .object({
-    descricao: z
-      .string({ required_error: 'A descricao da compra é obrigatório.' })
-      .nonempty({ message: 'A descricao da compra é obrigatório.' })
-      .max(100, { message: 'A descricao da compra não pode ter mais de 100 caracteres.' })
-      .min(3, { message: 'A descricao da compra deve ter pelo menos 3 caracteres.' }),
+    nome: z
+      .string({ required_error: 'O nome da compra é obrigatório.' })
+      .nonempty({ message: 'O nome da compra é obrigatório.' })
+      .max(100, { message: 'O nome da compra não pode ter mais de 100 caracteres.' })
+      .min(3, { message: 'O nome da compra deve ter pelo menos 3 caracteres.' }),
     idCategoria: z
       .number({ required_error: 'A categoria da compra é obrigatória.' })
       .refine((value) => value > 0, {

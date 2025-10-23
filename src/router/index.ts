@@ -18,6 +18,41 @@ const router = createRouter({
       component: () => import('../views/registro/RegistroView.vue'),
     },
     {
+      path: '/usuario',
+      meta: { requiresAuth: true },
+      component: () => import('../views/usuario/UsuarioView.vue'),
+      children: [
+        {
+          path: '',
+          redirect: '/perfil',
+        },
+        {
+          path: '/perfil',
+          name: 'perfil',
+          meta: { ico: 'pi pi-user' },
+          component: () => import('../views/usuario/abas/PerfilTab.vue'),
+        },
+        // {
+        //   path: '/perfil',
+        //   name: 'perfil',
+        //   meta: { ico: 'pi pi-user' },
+        //   component: () => import('../views/usuario/abas/PerfilTab.vue'),
+        // },
+        {
+          path: '/configuracoes',
+          name: 'configuracoes',
+          meta: { ico: 'pi pi-cog' },
+          component: () => import('../views/usuario/abas/ConfiguracoesTab.vue'),
+        },
+        // {
+        //   path: '/suporte',
+        //   name: 'suporte',
+        //   meta: { ico: 'pi pi-question-circle' },
+        //   component: () => import('../views/usuario/abas/SuporteTab.vue'),
+        // }
+      ],
+    },
+    {
       path: '/sistema',
       name: 'sistema',
       meta: { requiresAuth: true, secao: 'Planejamento' },
@@ -27,19 +62,19 @@ const router = createRouter({
           path: '/painel',
           name: 'painel',
           meta: { ico: 'pi pi-home' },
-          component: () => import('../views/painel/PainelTab.vue'),
+          component: () => import('../views/painel/abas/PainelTab.vue'),
         },
         {
           path: '/calendario',
           name: 'calendario',
           meta: { ico: 'pi pi-calendar' },
-          component: () => import('../views/painel/CalendarioTab.vue'),
+          component: () => import('../views/painel/abas/CalendarioTab.vue'),
         },
         {
           path: '/categorias',
           name: 'categorias',
           meta: { ico: 'pi pi-tag' },
-          component: () => import('../views/painel/CategoriaTab.vue'),
+          component: () => import('../views/painel/abas/CategoriaTab.vue'),
         },
       ],
     },
@@ -53,13 +88,13 @@ const router = createRouter({
           path: 'termos-de-uso',
           name: 'termos-de-uso',
           meta: { ico: 'pi pi-file' },
-          component: () => import('../views/informacoes-legais/TermosUsoTab.vue'),
+          component: () => import('../views/informacoes-legais/abas/TermosUsoTab.vue'),
         },
         {
           path: 'politica-de-privacidade',
           name: 'politica-de-privacidade',
           meta: { ico: 'pi pi-lock' },
-          component: () => import('../views/informacoes-legais/PoliticaPrivacidadeTab.vue'),
+          component: () => import('../views/informacoes-legais/abas/PoliticaPrivacidadeTab.vue'),
         },
       ],
     },
@@ -75,7 +110,7 @@ router.beforeEach((to, from, next) => {
   const autenticacaoStore = useAutenticacaoStore()
   
   // Verifica se o token expirou antes de cada navegação
-  if (autenticacaoStore.token) {
+  if (autenticacaoStore.accessToken) {
     if (!autenticacaoStore.verificarTokenExpirado()) {
       // Token expirado, redirecionar para login
       next('/')

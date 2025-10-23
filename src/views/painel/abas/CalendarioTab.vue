@@ -136,7 +136,7 @@ export default {
       codigoCalendarioSelecionado: -1,
       produto: {
         idProduto: 0,
-        descricao: '',
+        nome: '',
         idCategoria: 0,
         idCalendario: null,
         valorTotal: 0.0,
@@ -171,7 +171,7 @@ export default {
           if (evento) {
             this.produto = {
               idProduto: evento.idCompra,
-              descricao: evento.descricao,
+              nome: evento.nome,
               idCategoria: evento.categoria?.idCategoria || 0,
               idCalendario: evento.idCalendario || this.codigoCalendarioSelecionado,
               valorTotal: evento.valorTotal,
@@ -195,6 +195,7 @@ export default {
   },
   methods: {
     dateClick(info: any) {
+      this.resetarProduto()
       this.produto.dataRealizacao = info.date
       this.visibleCadastroCompra = true
     },
@@ -223,7 +224,7 @@ export default {
         this.events = response.data
         this.mappedEvents = response.data.map((compra: any) => ({
           id: compra.idCompra,
-          title: compra.descricao,
+          title: compra.nome,
           start: compra.dataRealizacao,
           end: compra.dataUltimaParcela || compra.dataRealizacao,
           allDay: true,
@@ -244,10 +245,29 @@ export default {
 
     visibleCadastroCompraListnerMethod(visible: boolean) {
       this.visibleCadastroCompra = visible
+
+      if (!visible) {
+        this.resetarProduto()
+      }
     },
     visibleCadastroCalendarioListnerMethod(visible: boolean) {
       this.visibleCadastroCalendario = visible
     },
+
+    resetarProduto() {
+      this.produto = {
+        idProduto: 0,
+        nome: '',
+        idCategoria: 0,
+        idCalendario: null,
+        valorTotal: 0.0,
+        dataRealizacao: null,
+        formaPagamento: FormasPagamentoEnum.DINHEIRO,
+        qtdParcelas: 1,
+        lojaOuFornecedor: '',
+        observacao: '',
+      }
+    }
   },
 }
 </script>

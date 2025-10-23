@@ -6,6 +6,7 @@
     :style="{ width: '50rem', position: 'relative', overflow: 'hidden' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     modal
+    :focusOnShow="false"
   >
     <template #closebutton>
       <Button
@@ -30,21 +31,21 @@
         <div class="col-md-6">
           <FloatLabel variant="in" class="required">
             <InputText
-              id="descricao-compra-input"
-              name="descricao"
+              id="nome-compra-input"
+              name="nome"
               :fluid="true"
               variant="filled"
             />
-            <label for="descricao-compra-input">Descrição</label>
+            <label for="nome-compra-input">Nome</label>
           </FloatLabel>
           <Message
-            v-if="$form.descricao?.invalid"
+            v-if="$form.nome?.invalid"
             class="mt-1"
             severity="error"
             size="small"
             variant="simple"
           >
-            {{ $form.descricao.error?.message }}
+            {{ $form.nome.error?.message }}
           </Message>
         </div>
         <div class="col-md-6">
@@ -303,23 +304,23 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import OverlayCarregando from './OverlayCarregando.vue'
 import Dialog from 'primevue/dialog'
 import { ref, watch } from 'vue'
-
+import { useToast } from 'primevue/usetoast'
+import Message from 'primevue/message'
 const props = defineProps<{
-  visible: boolean,
-  codigoCalendarioSelecionado: number,
+  visible: boolean
+  codigoCalendarioSelecionado: number
   produto: any
 }>()
 
 const emit = defineEmits<{
-  visibleEmit: [value: boolean],
+  visibleEmit: [value: boolean]
   obterComprasPorCalendarioEmit: []
 }>()
 
 const compraStore = useCompraStore()
 const parcelaStore = useParcelaStore()
-const categoriaStore = useCategoriaStore()
 const calendarioStore = useCalendarioStore()
-
+const toast = useToast()
 const categorias = ref([])
 const formasPagamento = ref([
   { label: 'Cartão de Crédito', value: FormasPagamentoEnum.CARTAO_CREDITO },
@@ -340,43 +341,56 @@ const resolver = zodResolver(compraSchema)
 
 const cadastrarCompra = async (event: any) => {
   isEnviando.value = true
+
   if (event.valid) {
-    event.values.idCalendario = props.codigoCalendarioSelecionado
+    try {
+      event.values.idCalendario = props.codigoCalendarioSelecionado
+      console.log('event.values', event.values)
 
-    let data
-    if (props.produto.idProduto > 0) {
-      data = await (compraStore as any).editar(props.produto.idProduto, event.values)
-    } else {
-      data = await compraStore.cadastrar(event.values)
-    }
+      let data
+      if (props.produto.idProduto > 0) {
+        data = await (compraStore as any).editar(props.produto.idProduto, event.values)
+      } else {
+        data = await compraStore.cadastrar(event.values)
+      }
 
-    if (data.status !== 200) {
-      console.error('Erro ao salvar compra:', data)
+      console.log('data', data)
+      if (data.status !== 200) {
+        console.error('Erro ao salvar compra:', data)
+        isEnviando.value = false
+        return
+      }
+
+      emit('obterComprasPorCalendarioEmit')
+      emit('visibleEmit', false)
+    } catch (error) {
+      console.error('Erro ao salvar compra:', error)
+      toast.add({ severity: 'error', summary: 'Erro ao salvar compra', detail: (error as any).message, life: 3000 })
+    } finally {
       isEnviando.value = false
-      return
     }
-
-    emit('obterComprasPorCalendarioEmit')
-    emit('visibleEmit', false)
+  } else {
     isEnviando.value = false
   }
-  isEnviando.value = false
 }
 
 const carregarCategoriasPorCodigoCalendario = async () => {
-  console.log('carregarCategoriasPorCodigoCalendario', props.codigoCalendarioSelecionado)
   try {
-    const response = await calendarioStore.listarCategoriasPorCodigoCalendarioDropdown(props.codigoCalendarioSelecionado)
+    const response = await calendarioStore.listarCategoriasPorCodigoCalendarioDropdown(
+      props.codigoCalendarioSelecionado,
+    )
+
     categorias.value = response.data
   } catch (error) {
     console.error('Erro ao carregar categorias:', error)
+    toast.add({ severity: 'error', summary: 'Erro ao carregar categorias', detail: (error as any).message, life: 3000 })
   }
 }
 
 const listarParcelamento = async (form: any) => {
-  const formaPagamento = form.formaPagamento.value
-  const valorTotal = form.valorTotal.value
-  const qtdParcelas = form.qtdParcelas.value
+  const formaPagamento = form.formaPagamento.value || form.formaPagamento
+  const valorTotal = form.valorTotal.value || form.valorTotal
+  const qtdParcelas = form.qtdParcelas.value || form.qtdParcelas
 
   if (formaPagamento === FormasPagamentoEnum.CARTAO_CREDITO && valorTotal > 0 && qtdParcelas > 0) {
     try {
@@ -391,6 +405,7 @@ const listarParcelamento = async (form: any) => {
       }
     } catch (error) {
       console.error('Erro ao calcular parcelamento:', error)
+      toast.add({ severity: 'error', summary: 'Erro ao calcular parcelamento', detail: (error as any).message, life: 3000 })
     }
   }
 }
@@ -401,195 +416,20 @@ const submitForm = () => {
 
 const onUpload = (event: any) => {
   console.log('Arquivo enviado com sucesso!')
+  toast.add({ severity: 'success', summary: 'Arquivo enviado com sucesso', detail: 'Arquivo enviado com sucesso', life: 3000 })
 }
 
 const formatCurrency = (valor: number) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)
 }
 
-watch(() => props.produto, () => {
-  if (props.produto.idProduto > 0) {
-    listarParcelamento(props.produto)
-  }
-}, { deep: true, immediate: true })
-
-watch(() => props.visible, (newVal) => {
-  if (newVal) {
-    carregarCategoriasPorCodigoCalendario()
-  }
-})
-
-// export default {
-//   components: {
-//     OverlayCarregando,
-//     Dialog,
-//   },
-//   setup() {
-//     const compraStore = useCompraStore()
-//     const parcelaStore = useParcelaStore()
-//     const categoriaStore = useCategoriaStore()
-
-//     return {
-//       compraStore,
-//       parcelaStore,
-//       categoriaStore,
-//     }
-//   },
-//   data() {
-//     return {
-//       categorias: [],
-//       formasPagamento: [
-//         { label: 'Cartão de Crédito', value: FormasPagamentoEnum.CARTAO_CREDITO },
-//         { label: 'Cartão de Débito', value: FormasPagamentoEnum.CARTAO_DEBITO },
-//         { label: 'Dinheiro', value: FormasPagamentoEnum.DINHEIRO },
-//         { label: 'Pix', value: FormasPagamentoEnum.PIX },
-//         { label: 'Boleto', value: FormasPagamentoEnum.BOLETO },
-//       ],
-//       listaParcelas: [
-//         {
-//           numero: '--',
-//           valor: '--',
-//         },
-//       ] as any,
-//       isEnviando: false,
-//       resolver: zodResolver(compraSchema),
-//     }
-//   },
-//   methods: {
-//     async cadastrarCompra(event: any) {
-//       this.isEnviando = true
-//       if (event.valid) {
-//         event.values.idCalendario = this.codigoCalendarioSelecionado
-        
-//         let data
-//         if (this.produto.idProduto > 0) {
-//           // Modo edição - usar método direto da store
-//           data = await (this.compraStore as any).editar(this.produto.idProduto, event.values)
-//         } else {
-//           // Modo cadastro
-//           data = await this.compraStore.cadastrar(event.values)
-//         }
-        
-//         if (data.status !== 200) {
-//           console.error('Erro ao salvar compra:', data)
-//           this.isEnviando = false
-//           return
-//         }
-        
-//         this.$emit('obterComprasPorCalendarioEmit')
-//         this.$emit('visibleEmit', false)
-//       }
-//       this.isEnviando = false
-//     },
-//     async carregarCategorias() {
-//       try {
-//         const response = await this.categoriaStore.listarDropDown()
-//         this.categorias = response.data
-//       } catch (error) {
-//         console.error('Erro ao carregar categorias:', error)
-//       }
-//     },
-
-//     async listarParcelamento(form: any) {
-//       const formaPagamento = form.formaPagamento.value
-//       const valorTotal = form.valorTotal.value
-//       const qtdParcelas = form.qtdParcelas.value
-
-//       if (
-//         formaPagamento === FormasPagamentoEnum.CARTAO_CREDITO &&
-//         valorTotal > 0 &&
-//         qtdParcelas > 0
-//       ) {
-//         try {
-//           const response = await this.parcelaStore.calcularParcelamento({
-//             valorTotal,
-//             qtdParcelas,
-//           })
-
-//           const { valorParcela } = response.data
-
-//           this.listaParcelas = []
-//           for (let i = 1; i <= qtdParcelas; i++) {
-//             this.listaParcelas.push({
-//               numero: i,
-//               valor: valorParcela,
-//             })
-//           }
-//         } catch (error) {
-//           console.error('Erro ao calcular parcelamento:', error)
-//         }
-//       }
-//     },
-//     async calcularParcelas() {
-//       if (
-//         this.produto.formaPagamento === FormasPagamentoEnum.CARTAO_CREDITO &&
-//         this.produto.valorTotal > 0 &&
-//         this.produto.qtdParcelas > 0
-//       ) {
-//         try {
-//           const response = await this.parcelaStore.calcularParcelamento({
-//             valorTotal: this.produto.valorTotal,
-//             qtdParcelas: this.produto.qtdParcelas,
-//           })
-
-//           const { valorParcela } = response.data
-
-//           this.listaParcelas = []
-//           for (let i = 1; i <= this.produto.qtdParcelas; i++) {
-//             this.listaParcelas.push({
-//               numero: i,
-//               valor: valorParcela,
-//             })
-//           }
-//         } catch (error) {
-//           console.error('Erro ao calcular parcelamento:', error)
-//         }
-//       }
-//     },
-//     submitForm() {
-//       ;(this.$refs.formProdutoRef as { submit: () => void })?.submit()
-//     },
-//     onUpload() {
-//       console.log('Arquivo enviado com sucesso!')
-//     },
-//     formatCurrency(valor: number) {
-//       if (!valor || isNaN(valor)) return 'R$ 0,00'
-//       return new Intl.NumberFormat('pt-BR', {
-//         style: 'currency',
-//         currency: 'BRL',
-//       }).format(valor)
-//     },
-//   },
-//   props: {
-//     visible: {
-//       type: Boolean,
-//       required: true,
-//     },
-//     codigoCalendarioSelecionado: {
-//       type: Number,
-//       required: true,
-//     },
-//     produto: {
-//       type: Object,
-//       required: true,
-//     },
-//   },
-//   emits: ['visibleEmit', 'obterComprasPorCalendarioEmit'],
-//   watch: {
-//     visible(newVal) {
-//       if (newVal) {
-//         this.carregarCategorias()
-//       }
-//     },
-//     produto: {
-//       handler() {
-//         if (this.produto.idProduto > 0) {
-//           this.calcularParcelas()
-//         }
-//       },
-//       deep: true,
-//       immediate: true
-//     }
-//   },
-// }
+watch(
+  () => props.visible,
+  (newVal) => {
+    if (newVal) {
+      listarParcelamento(props.produto)
+      carregarCategoriasPorCodigoCalendario()
+    }
+  },
+)
 </script>

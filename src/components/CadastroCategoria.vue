@@ -6,6 +6,7 @@
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     :draggable="false"
     modal
+    :focusOnShow="false"
   >
     <template #closebutton>
       <Button icon="pi pi-times" text severity="secondary" @click="cancelar" rounded></Button>
