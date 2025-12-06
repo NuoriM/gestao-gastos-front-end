@@ -85,11 +85,7 @@
     </div>
   </div>
 
-  <FullCalendar 
-    :options="opcoesDoCalendario"
-    ref="calendarRef"
-  >
-  </FullCalendar>
+  <FullCalendar :options="opcoesDoCalendario" ref="calendarRef"> </FullCalendar>
 
   <!-- <template v-slot:eventContent="arg">
               <div
@@ -104,8 +100,16 @@
 </template>
 <script lang="ts">
 import FullCalendar from '@fullcalendar/vue3'
+import moment from 'moment'
+import type { PropType } from 'vue'
+import { useCompraStore } from '@/stores/compra.store'
+import type { ICompra } from '@/core/dtos/compra.dto'
 
 export default {
+  setup() {
+    const compraStore = useCompraStore()
+    return { compraStore }
+  },
   components: {
     FullCalendar,
   },
@@ -119,33 +123,75 @@ export default {
       required: true,
     },
     codigoCalendarioSelecionado: {
-      type: Number,
-      required: true,
+      type: Number as PropType<number | null>,
+      required: false,
+      default: null,
+    },
+    codigoCompraSelecionada: {
+      type: Number as PropType<number | null>,
+      required: false,
+      default: null,
     },
   },
-  emits: ['update:codigoCalendarioSelecionado', 'visibleCadastroCalendario', 'navegarCalendario', 'alterarVisualizacao'],
+  emits: [
+    'update:codigoCalendarioSelecionado',
+    'visibleCadastroCalendario',
+    'navegarCalendario',
+    'alterarVisualizacao',
+  ],
   data() {
     return {
+      compraSelecionada: null as ICompra | null,
+
       visualizacaoAtual: 'dayGridMonth',
-      dataAtual: new Date(),
+      dataAtual: moment().toDate(),
     }
   },
   mounted() {
     // Aguarda o calendário ser montado para sincronizar o estado inicial
     this.$nextTick(() => {
+      // this.obterCompraCalendario()
       this.atualizarDataAtual()
     })
   },
   computed: {
     tituloAtual() {
       const meses = [
-        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro',
       ]
       return `${meses[this.dataAtual.getMonth()]} ${this.dataAtual.getFullYear()}`
-    }
+    },
   },
   methods: {
+    async obterCompraCalendario() {
+      if (this.codigoCompraSelecionada === null || this.codigoCalendarioSelecionado === null) {
+        return
+      }
+      try {
+        const response = await this.compraStore.obterPorCodigo(
+          this.codigoCalendarioSelecionado,
+          this.codigoCompraSelecionada,
+        )
+
+        this.compraSelecionada = response.data as ICompra
+      } catch (error) {
+        console.error('Erro ao obter compra:', error);
+        this.compraSelecionada = null
+      }
+      
+
+    },
     navegarAnterior() {
       const calendar = this.$refs.calendarRef as any
       if (calendar && calendar.getApi) {
@@ -178,11 +224,17 @@ export default {
       const calendar = this.$refs.calendarRef as any
       if (calendar && calendar.getApi) {
         const view = calendar.getApi().view
-        this.dataAtual = view.activeStart
+
+        this.dataAtual = view.currentStart
         this.visualizacaoAtual = view.type
       }
-    }
-  }
+    },
+  },
+  watch: {
+    codigoCompraSelecionada() {
+      this.obterCompraCalendario()
+    },
+  },
 }
 </script>
 
@@ -234,17 +286,17 @@ h6 {
   .col-md-4 {
     margin-bottom: 0.5rem;
   }
-  
+
   .text-end {
     text-align: left !important;
   }
-  
+
   .btn-group {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
   }
-  
+
   .btn-group .btn {
     flex: 1;
     min-width: 0;

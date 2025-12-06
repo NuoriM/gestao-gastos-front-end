@@ -67,6 +67,7 @@
           <!-- Calendário real -->
           <CalendarioCompras
             v-else-if="calendarios.length > 0"
+            :codigoCompraSelecionada="idCompra"
             :calendarios="calendarios"
             :opcoes-do-calendario="opcoesDoCalendario"
             v-model:codigo-calendario-selecionado="codigoCalendarioSelecionado"
@@ -98,8 +99,10 @@
   />
   <CadastroCompra
     v-bind:visible="visibleCadastroCompra"
-    :produto="produto"
-    :codigoCalendarioSelecionado="codigoCalendarioSelecionado"
+    :idCompra="idCompra ?? undefined"
+    :dataClicada="dataClicada ?? undefined"
+    :codigoCalendarioSelecionado="codigoCalendarioSelecionado ?? undefined"
+    :codigoCompraSelecionada="idCompra ?? undefined"
     @visibleEmit="visibleCadastroCompraListnerMethod"
     @obterComprasPorCalendarioEmit="obterComprasPorCalendario"
   />
@@ -107,12 +110,12 @@
 <script lang="ts">
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import { FormasPagamentoEnum } from '@/core/enums/formas-pagamento.enum'
 import { useCalendarioStore } from '@/stores/calendario.store'
 import { nextTick } from 'vue'
 import CadastroCompra from '@/components/CadastroCompra.vue'
 import CalendarioCompras from '@/components/CalendarioCompras.vue'
 import CadastroCalendario from '@/components/CadastroCalendario.vue'
+import { useCompraStore } from '@/stores/compra.store'
 
 export default {
   components: {
@@ -122,34 +125,39 @@ export default {
   },
   setup() {
     const calendarioStore = useCalendarioStore()
+    const compraStore = useCompraStore()
 
-    return { calendarioStore }
+    return { calendarioStore, compraStore }
   },
   data() {
     return {
       carregando: true,
+      dataClicada: null,
       visibleCadastroCompra: false,
       visibleCadastroCalendario: false,
+      idCompra: null,
       events: [],
-      mappedEvents: [],
+      mappedEvents: [] as Array<{
+        title: string
+        start: Date | string
+        end: Date | string
+        [key: string]: any
+      }>,
       calendarios: [] as any,
-      codigoCalendarioSelecionado: -1,
-      produto: {
-        idProduto: 0,
-        nome: '',
-        idCategoria: 0,
-        idCalendario: null,
-        valorTotal: 0.0,
-        dataRealizacao: null,
-        formaPagamento: FormasPagamentoEnum.DINHEIRO,
-        qtdParcelas: 1,
-        // taxaJuros: 0.0,
-        // valorParcela: 0.0,
-        // jurosTotais: 0.0,
-        // dataPrimeiraParcela: null,
-        lojaOuFornecedor: '',
-        observacao: '',
-      },
+      codigoCalendarioSelecionado: null as number | null,
+      // produto: {
+      //   idProduto: 0,
+      //   idCartao: null,
+      //   idCategoria: 0,
+      //   idCalendario: null,
+      //   nome: '',
+      //   valorTotal: 0.0,
+      //   dataRealizacao: null,
+      //   formaPagamento: FormasPagamentoEnum.DINHEIRO,
+      //   qtdParcelas: 1,
+      //   lojaOuFornecedor: '',
+      //   observacao: '',
+      // },
     }
   },
   async mounted() {
@@ -166,22 +174,10 @@ export default {
         height: 'auto',
         editable: true,
         dateClick: this.dateClick,
-        eventClick: (data: any) => {
-          const evento = this.events.find((event: any) => event.idCompra == data.event.id) as any
-          if (evento) {
-            this.produto = {
-              idProduto: evento.idCompra,
-              nome: evento.nome,
-              idCategoria: evento.categoria?.idCategoria || 0,
-              idCalendario: evento.idCalendario || this.codigoCalendarioSelecionado,
-              valorTotal: evento.valorTotal,
-              dataRealizacao: evento.dataRealizacao,
-              formaPagamento: evento.formaPagamento,
-              qtdParcelas: evento.qtdParcelas,
-              lojaOuFornecedor: evento.lojaOuFornecedor,
-              observacao: evento.observacao,
-            }
-            this.visibleCadastroCompra = true
+        eventClick: async (data: any) => {
+          if (data) {
+            this.idCompra = data.event.extendedProps.idCompra;
+            this.visibleCadastroCompra = true;
           }
         },
         events: this.mappedEvents,
@@ -195,8 +191,8 @@ export default {
   },
   methods: {
     dateClick(info: any) {
-      this.resetarProduto()
-      this.produto.dataRealizacao = info.date
+      this.idCompra = null
+      this.dataClicada = info.date
       this.visibleCadastroCompra = true
     },
     async obterCalendarios() {
@@ -217,26 +213,28 @@ export default {
     },
 
     async obterComprasPorCalendario() {
+      if (this.codigoCalendarioSelecionado === null) {
+        return
+      }
       try {
         const response = await this.calendarioStore.listarComprasPorCalendario(
           this.codigoCalendarioSelecionado,
         )
+
         this.events = response.data
         this.mappedEvents = response.data.map((compra: any) => ({
           id: compra.idCompra,
           title: compra.nome,
+          color: '#' + compra.corHexCategoria,
           start: compra.dataRealizacao,
-          end: compra.dataUltimaParcela || compra.dataRealizacao,
+          // FullCalendar trata 'end' de allDay como exclusivo; somamos +1 dia para incluir a data de vencimento
+          end: (() => {
+            const d = new Date(compra.dataVencimento)
+            d.setDate(d.getDate() + 1)
+            return d
+          })(),
           allDay: true,
-          color: '#' + compra.categoria.corHex,
-          extendedProps: {
-            lojaOuFornecedor: compra.lojaOuFornecedor,
-            formaPagamento: compra.formaPagamento,
-            valorTotal: compra.valorTotal,
-            observacao: compra.observacao,
-            qtdParcelas: compra.qtdParcelas,
-            dataPrimeiraParcela: compra.dataPrimeiraParcela,
-          },
+          extendedProps: { ...compra },
         }))
       } catch (error) {
         console.error('Erro ao obter compras por calendário:', error)
@@ -247,27 +245,28 @@ export default {
       this.visibleCadastroCompra = visible
 
       if (!visible) {
-        this.resetarProduto()
+        // this.resetarProduto()
       }
     },
     visibleCadastroCalendarioListnerMethod(visible: boolean) {
       this.visibleCadastroCalendario = visible
     },
 
-    resetarProduto() {
-      this.produto = {
-        idProduto: 0,
-        nome: '',
-        idCategoria: 0,
-        idCalendario: null,
-        valorTotal: 0.0,
-        dataRealizacao: null,
-        formaPagamento: FormasPagamentoEnum.DINHEIRO,
-        qtdParcelas: 1,
-        lojaOuFornecedor: '',
-        observacao: '',
-      }
-    }
+    // resetarProduto() {
+    //   this.produto = {
+    //     idProduto: 0,
+    //     idCartao: null,
+    //     idCategoria: 0,
+    //     idCalendario: null,
+    //     nome: '',
+    //     valorTotal: 0.0,
+    //     dataRealizacao: null,
+    //     formaPagamento: FormasPagamentoEnum.DINHEIRO,
+    //     qtdParcelas: 1,
+    //     lojaOuFornecedor: '',
+    //     observacao: '',
+    //   }
+    // },
   },
 }
 </script>

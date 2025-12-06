@@ -47,7 +47,7 @@ const entrar = async (event: any) => {
                 name="emailTelefone"
                 :fluid="true"
                 variant="filled"
-				autocomplete="email"
+                autocomplete="email"
               />
               <label for="email-telefone-input" class="form-label">E-mail ou telefone</label>
             </FloatLabel>
@@ -66,7 +66,7 @@ const entrar = async (event: any) => {
               <Password
                 id="senha-input"
                 name="senha"
-				:inputProps="{ autocomplete: 'current-password' }"
+                :inputProps="{ autocomplete: 'current-password' }"
                 :feedback="false"
                 variant="filled"
                 toggleMask

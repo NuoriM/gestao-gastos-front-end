@@ -1,10 +1,12 @@
 <template>
   <Dialog
     v-bind="{ visible }"
-    :header="categoria.idCategoria ? 'Editar Categoria' : 'Nova Categoria'"
+    :header="idCategoria ? 'Editar Categoria' : 'Nova Categoria'"
     :style="{ width: '50rem', position: 'relative', overflow: 'hidden' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     :draggable="false"
+    :dismissableMask="true"
+    @update:visible="$emit('visibleEmit', $event)"
     modal
     :focusOnShow="false"
   >
@@ -16,7 +18,7 @@
       ref="formCategoriaRef"
       v-slot="$form"
       :resolver="resolver"
-      :initialValues="categoria"
+      :initialValues="dadosCategoria"
       @submit="submitForm"
     >
       <div class="row mb-3">
@@ -67,11 +69,11 @@
               id="corHex"
               name="corHex"
               :fluid="true"
-              v-model="categoria.corHex"
+              v-model="dadosCategoria.corHex"
               variant="filled"
             />
             <InputGroupAddon>
-              <ColorPicker v-model="categoria.corHex" inputId="corHex" format="hex"
+              <ColorPicker v-model="dadosCategoria.corHex" inputId="corHex" format="hex"
             /></InputGroupAddon>
           </InputGroup>
         </div>
@@ -115,7 +117,7 @@
     <template #footer>
       <Button label="Cancelar" icon="pi pi-times" @click="cancelar" variant="outlined" />
       <Button
-        :label="categoria.idCategoria ? 'Atualizar' : 'Cadastrar'"
+        :label="props.idCategoria ? 'Atualizar' : 'Cadastrar'"
         icon="pi pi-check"
         @click="() => ($refs.formCategoriaRef as any)?.submit()"
         variant="success"
@@ -123,18 +125,102 @@
     </template>
   </Dialog>
 </template>
-<script lang="ts">
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import { useCalendarioStore } from '@/stores/calendario.store';
+import { categoriaSchema } from '@/core/schemas/categoria/categoria.schema';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
+
+const calendarioStore = useCalendarioStore()
+const resolver = zodResolver(categoriaSchema)
+
+const isEnviando = ref(false)
+
+const dadosCategoria = ref({
+  nome: '',
+  descricao: '',
+  corHex: 'ff0000',
+  idCalendario: 0,
+})
+
+const descricaoMax = ref(280)
+const qtdCaracteres = ref(0)
+
+const props = defineProps<{
+  visible: boolean
+  idCategoria: number | null
+  idCalendario: number
+}>()
+
+const emit = defineEmits<{
+  visibleEmit: [value: boolean],
+  atualizarCategoriaEmit: []
+}>()
+
+const calendarios = ref([])
+
+const obterCalendarios = async () => {
+  const response = await calendarioStore.listarCalendarios()
+  calendarios.value = response.data
+}
+
+const obterCategoriaPorCodigo = async () => {
+  const response = await calendarioStore.obterCategoriaPorCodigo(props.idCalendario, props.idCategoria!)
+  dadosCategoria.value = response.data
+}
+
+watch(
+  () => props.visible,
+  (newVal: boolean) => {
+    if (newVal) {
+      obterCalendarios()
+      if (props.idCategoria !== null) {
+        obterCategoriaPorCodigo()
+      }
+    }
+  },
+)
+
+const submitForm = async (event: any) => {
+  isEnviando.value = true
+  if (event.valid) {
+    // const formData = event.values
+    // if (props.idCategoria) {
+    //   formData.idCategoria = props.idCategoria
+    // }
+  }
+}
+
+const knobColor = computed(() => {
+  if (qtdCaracteres.value > descricaoMax.value - 50 && qtdCaracteres.value <= descricaoMax.value - 10) return 'orange'
+  if (qtdCaracteres.value > descricaoMax.value - 10) return 'red'
+  return 'MediumTurquoise'
+})
+
+const handleDescricaoInput = (event: Event) => {
+  const target = event.target as HTMLTextAreaElement
+  if (descricaoMax.value - target.value.length < 0) return
+  qtdCaracteres.value = target.value.length
+}
+
+const cancelar = () => {
+  qtdCaracteres.value = 0
+  emit('visibleEmit', false)
+}
+
+</script>
+<!-- <script lang="ts">
 import { categoriaSchema } from '@/core/schemas/categoria/categoria.schema'
-import { useCategoriaStore } from '@/stores/categoria.store'
+// import { useCategoriaStore } from '@/stores/categoria.store'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { useCalendarioStore } from '@/stores/calendario.store'
 
 export default {
   setup() {
     const calendarioStore = useCalendarioStore()
-    const categoriaStore = useCategoriaStore()
+    // const categoriaStore = useCategoriaStore()
 
-    return { categoriaStore, calendarioStore }
+    return { calendarioStore }
   },
   data() {
     return {
@@ -167,9 +253,9 @@ export default {
         formData.corHex = this.categoria.corHex
 
         try {
-          await this.categoria.idCategoria
-            ? await this.categoriaStore.editar(formData)
-            : await this.categoriaStore.cadastrar(formData)
+          // await this.categoria.idCategoria
+          //   ? await this.calendarioStore.editarCategoria(, formData)
+          //   : await this.calendarioStore.cadastrarCategoria(, formData)
 
           this.$emit('visibleEmit', false)
           this.$emit('atualizarCategoriaEmit')
@@ -200,27 +286,15 @@ export default {
       } catch (error) {
         console.error('Erro ao obter calendários:', error)
       }
-    }
+    },
   },
   emits: ['visibleEmit', 'atualizarCategoriaEmit'],
-  //   watch: {
-  // 	visible() {
-  // 		if (!this.visible) {
-  // 			this.categoria = {
-  // 				idCategoria: 0,
-  // 				nome: '',
-  // 				descricao: '',
-  // 				corHex: 'ff0000',
-  // 			}
-  // 		}
-  // 	}
-  //   },
   watch: {
     visible(newVal) {
       if (newVal) {
         this.obterCalendarios()
       }
-    }
+    },
   },
   computed: {
     knobColor() {
@@ -234,4 +308,4 @@ export default {
     },
   },
 }
-</script>
+</script> -->

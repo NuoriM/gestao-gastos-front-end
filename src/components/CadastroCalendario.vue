@@ -7,6 +7,8 @@
     :style="{ width: '50rem', position: 'relative', overflow: 'hidden' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     :focusOnShow="false"
+    :dismissableMask="true"
+    @update:visible="$emit('visibleEmit', $event)"
   >
     <template #closebutton>
       <Button

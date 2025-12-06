@@ -6,10 +6,10 @@ export const useCategoriaStore = defineStore('categoria', {
   state: () => ({}),
   getters: {},
   actions: {
-    async cadastrar(dadosCategoria: any) {
-      const resposta = await axios.post(`${environment.API_URL}/categoria`, dadosCategoria)
-      return resposta
-    },
+    // async cadastrar(dadosCategoria: any) {
+    //   const resposta = await axios.post(`${environment.API_URL}/categoria`, dadosCategoria)
+    //   return resposta
+    // },
 
     async editar(dadosCategoria: any) {
       const resposta = await axios.put(`${environment.API_URL}/categoria`, dadosCategoria)

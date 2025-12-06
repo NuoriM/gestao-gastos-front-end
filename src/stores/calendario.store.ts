@@ -7,12 +7,12 @@ export const useCalendarioStore = defineStore('calendario', {
   getters: {},
   actions: {
     async listarCalendarios() {
-      const response = await axios.get(`${environment.API_URL}/calendario/dropdown`)
+      const response = await axios.get(`${environment.API_URL}/calendarios/dropdown`)
       return response
     },
 
     async listarCategoriasPorCodigoCalendarioDropdown(codigoCalendario: number) {
-      const response = await axios.get(`${environment.API_URL}/calendario/${codigoCalendario}/categorias/dropdown`)
+      const response = await axios.get(`${environment.API_URL}/calendarios/${codigoCalendario}/categorias/dropdown`)
       return response
     },
     
@@ -22,9 +22,33 @@ export const useCalendarioStore = defineStore('calendario', {
     },
 
     async listarComprasPorCalendario(codigoCalendario: number) {
-      const response = await axios.get(`${environment.API_URL}/calendario/${codigoCalendario}/compras`)
+      const response = await axios.get(`${environment.API_URL}/calendarios/${codigoCalendario}/compras`)
       return response
     },
 
+    async listarDropDown(codigoCalendario: number) {
+      const resposta = await axios.get(`${environment.API_URL}/calendarios/${codigoCalendario}/cartoes/dropdown`)
+      return resposta
+    },
+
+    async obterCategoriaPorCodigo(codigoCalendario: number, codigoCategoria: number) {
+      const resposta = await axios.get(`${environment.API_URL}/${codigoCalendario}/categorias/${codigoCategoria}`)
+      return resposta
+    },
+
+    async cadastrarCategoria(codigoCalendario: number, dadosCategoria: any) {
+      const resposta = await axios.post(`${environment.API_URL}/calendario/${codigoCalendario}/categorias`, dadosCategoria)
+      return resposta
+    },
+
+    async editarCategoria(codigoCalendario: number, dadosCategoria: any) {
+      const resposta = await axios.put(`${environment.API_URL}/calendario/${codigoCalendario}/categorias`, dadosCategoria)
+      return resposta
+    },
+    
+    async cadastrarCartao(codigoCalendario: number, dadosCartao: any) {
+      const resposta = await axios.post(`${environment.API_URL}/calendario/${codigoCalendario}/cartoes`, dadosCartao)
+      return resposta
+    },
   },
 })

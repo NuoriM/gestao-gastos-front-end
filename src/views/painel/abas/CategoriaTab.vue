@@ -19,7 +19,7 @@
               <Skeleton height="24px" width="150px" />
               <Skeleton height="32px" width="120px" />
             </div>
-            
+
             <!-- Skeleton da tabela -->
             <div class="card">
               <div class="card-body p-0">
@@ -38,7 +38,7 @@
                     <Skeleton height="16px" width="60px" class="mx-auto" />
                   </div>
                 </div>
-                
+
                 <!-- Linhas da tabela -->
                 <div v-for="i in 5" :key="i" class="row g-0 border-bottom">
                   <div class="col-2 p-3 text-center">
@@ -124,12 +124,55 @@
   </div>
   <CadastroCategoria
     v-bind:visible="visible"
-    :categoria="categoriaSelecionada"
+    :idCategoria="idCategoria"
     @visibleEmit="visibleCadastroCategoriaListnerMethod"
     @atualizarCategoriaEmit="listarCategorias"
   />
 </template>
-<script lang="ts">
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { useCategoriaStore } from '@/stores/categoria.store'
+
+const categoriaStore = useCategoriaStore()
+
+const categorias = ref([])
+const isLoading = ref(true)
+const visible = ref(false)
+const idCategoria = ref<number | null>(null)
+
+const listarCategorias = async () => {
+  const response = await categoriaStore.listarPaginado()
+  categorias.value = response.data.content
+  isLoading.value = false
+}
+
+onMounted(() => {
+  listarCategorias()
+})
+
+const abrirModalNovaCategoria = () => {
+  visible.value = true
+}
+
+const abrirModalEditar = (categoria: any) => {
+  idCategoria.value = categoria.idCategoria
+  visible.value = true
+}
+
+const removerCategoria = async (id: number) => {
+  await categoriaStore.remover(id)
+  listarCategorias()
+}
+
+const visibleCadastroCategoriaListnerMethod = (isVisible: boolean) => {
+  visible.value = isVisible
+  if (!isVisible) {
+    idCategoria.value = null
+  }
+  listarCategorias()
+}
+</script>
+<!-- <script lang="ts">
 import { useCategoriaStore } from '@/stores/categoria.store'
 
 export default {
@@ -178,7 +221,8 @@ export default {
       this.isLoading = true
       const response = await this.categoriaStore.listarPaginado()
       this.isLoading = false
-      this.categorias = response.data.content
+      this.categorias = response.data.content;
+      console.log(this.categorias);
     },
 
     visibleCadastroCategoriaListnerMethod(visible: boolean) {
@@ -186,7 +230,7 @@ export default {
     },
   },
 }
-</script>
+</script> -->
 <style scoped lang="scss">
 :root {
   --p-disabled-opacity: 1 !important;
